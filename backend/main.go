@@ -64,6 +64,11 @@ func main() {
 	// Public Metrics / Visualization route (safe read-only display logs used by Chart.js graphs)
 	r.Get("/api/dashboard/{building_id}", deps.HandleGetDashboard)
 
+	// ==========================================
+	// PUBLIC ROUTE: Trigger Safaricom STK Push
+	// ==========================================
+	r.Post("/api/maintenance/{task_id}/stk", deps.HandleInitiateSTKPush)
+
 	// Secured API Endpoint Router Groups protected by cryptographic JSON Web Token verified handles
 	r.Group(func(secured chi.Router) {
 		secured.Use(customMiddleware.EnsureJWT)
@@ -73,9 +78,6 @@ func main() {
 
 		// Disburse actual contractor pay outs via M-Pesa sandbox integration
 		secured.With(customMiddleware.RequireRole("owner")).Post("/api/maintenance/{task_id}/pay", deps.HandleDisburseContractorMpesa)
-
-		// Securely Trigger Safaricom STK Push (Role protected)
-		secured.With(customMiddleware.RequireRole("owner", "manager")).Post("/api/maintenance/{task_id}/stk", deps.HandleInitiateSTKPush)
 	})
 
 	// 4. Server configuration binding to host environment interfaces

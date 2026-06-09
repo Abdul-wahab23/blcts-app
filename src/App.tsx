@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Menu,
   CheckCircle2,
@@ -12,7 +12,8 @@ import {
   Building2,
   Plus,
   Sun,
-  Moon
+  Moon,
+  RefreshCw
 } from "lucide-react";
 import {
   initialProperties,
@@ -91,6 +92,44 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<"success" | "info" | "warning">("success");
 
+  // Step 4 Presentation Readiness Safeguard States
+  const [isBackendWaking, setIsBackendWaking] = useState<boolean>(true);
+  const [backendConnectionError, setBackendConnectionError] = useState<boolean>(false);
+
+  // Probe backend status to proactively handle Render Free-Tier spin up latencies
+  useEffect(() => {
+    const probeBackendHealth = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 7000); // Trigger fallback threshold fast
+
+        const res = await fetch("https://blcts-backend.onrender.com/api/health", { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          setIsBackendWaking(false);
+        } else {
+          throw new Error("Degraded status");
+        }
+      } catch (err) {
+        console.warn("Backend is cold-starting or unreachable. Retrying loop structural connectivity...");
+        // Keep checking periodically until server wakes up
+        const interval = setInterval(async () => {
+          try {
+            const retryRes = await fetch("https://blcts-backend.onrender.com/api/health");
+            if (retryRes.ok) {
+              setIsBackendWaking(false);
+              clearInterval(interval);
+            }
+          } catch (e) {
+            // Server is still waking up
+          }
+        }, 4000);
+      }
+    };
+
+    probeBackendHealth();
+  }, []);
+
   // Selected property helper
   const selectedProperty = useMemo(() => {
     return properties.find(p => p.id === selectedPropertyId) || properties[0];
@@ -151,7 +190,10 @@ export default function App() {
 
   // SVG Chart drawing calculations
   const svgChartPaths = useMemo(() => {
-    if (trendsData.length === 0) return { capexBudgetPath: "", capexActualPath: "", opexBudgetPath: "", opexActualPath: "", capexFillPath: "", opexFillPath: "", coords: [] };
+    // Step 1 Fallback Data Null Guard Verification Layer
+    if (!trendsData || trendsData.length === 0) {
+      return { capexBudgetPath: "", capexActualPath: "", opexActualPath: "", opexBudgetPath: "", capexFillPath: "", opexFillPath: "", coords: [] };
+    }
     
     const width = 600;
     const height = 200;
@@ -307,12 +349,10 @@ export default function App() {
     setMpesaStep("stk-sent");
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`https://blcts-backend.onrender.com/api/maintenance/${activeMpesaTask.id}/stk`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ phone_number: mpesaPhone }) 
       });
@@ -366,6 +406,28 @@ export default function App() {
     }
     setActiveMpesaTask(null);
   };
+
+  // Step 4 Professional Presentation Loader Layout (Shields against white flash blank frames)
+  if (isBackendWaking) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white font-sans antialiased px-4 text-center">
+        <div className="relative flex items-center justify-center mb-6">
+          <div className="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin"></div>
+          <Building2 className="w-6 h-6 text-emerald-400 absolute animate-pulse" />
+        </div>
+        <h1 className="text-base font-black tracking-wider uppercase font-display bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+          BLCTS Enterprise Core Systems
+        </h1>
+        <p className="text-xs text-slate-400 mt-2 max-w-xs font-light leading-relaxed">
+          Waking up backend infrastructure cluster on Render free-tier instance pools. System will initialize automatically...
+        </p>
+        <div className="flex items-center gap-2 mt-6 text-[10px] bg-slate-900 px-4 py-1.5 rounded-full border border-slate-800 text-emerald-400 font-mono font-bold uppercase tracking-widest">
+          <RefreshCw className="w-3 h-3 animate-spin" />
+          <span>Status: Awaiting Handshake</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${isDarkMode ? "dark bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"} font-sans flex flex-col antialiased selection:bg-emerald-500 selection:text-white transition-colors duration-200`}>
