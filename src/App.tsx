@@ -309,22 +309,39 @@ export default function App() {
   };
 
   // Simulate M-Pesa STK Push
-  const handleInitiateMpesa = () => {
+  const handleInitiateMpesa = async () => {
+    if (!activeMpesaTask) return;
+    
     setMpesaStep("stk-sent");
 
-    // Cycle steps to look like a genuine API integration with Safaricom Daraja
-    setTimeout(() => {
+    try {
+      // 1. Send the actual phone number to your Go backend!
+      const response = await fetch(`https://blcts-backend.onrender.com/api/maintenance/${activeMpesaTask.id}/stk`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // If you have JWT set up, you would add the Authorization header here
+        },
+        body: JSON.stringify({ phone_number: mpesaPhone }) 
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to initiate M-Pesa STK Push");
+      }
+
+      // 2. Safaricom accepted it! Tell the user to look at their phone.
       setMpesaStep("waiting-pin");
-    }, 2000);
 
-    setTimeout(() => {
-      // Complete transaction and change statuses
-      const txId = "STK" + Math.random().toString(36).substring(2, 12).toUpperCase();
-      setMpesaTransactionId(txId);
-      setMpesaStep("completed");
+      // 3. For your academic demo, we will automatically assume "Success" after a short delay
+      // (In a real enterprise app, you would set up a WebSocket or polling here to wait for the Daraja callback)
+      setTimeout(() => {
+        const txId = "STK" + Math.random().toString(36).substring(2, 12).toUpperCase();
+        setMpesaTransactionId(txId);
+        setMpesaStep("completed");
 
-      // Update task status to 'Paid' inside maintenance state
-      if (activeMpesaTask) {
+        // Update task status to 'Paid' inside maintenance state
         setMaintenanceTasks(prev =>
           prev.map(t => (t.id === activeMpesaTask.id ? { ...t, status: "Paid" } : t))
         );
@@ -341,12 +358,17 @@ export default function App() {
             date: new Date().toISOString().substring(0, 10),
             contractor: activeMpesaTask.contractor,
             status: "Paid",
-            description: `Mobile disbursement completed via API on ${activeMpesaTask.phone}. Ref ID: ${txId}`
+            description: `Mobile disbursement completed via API on ${mpesaPhone}. Ref ID: ${txId}`
           };
           setCostEntries(prev => [mpesaLedgerRecord, ...prev]);
         }
-      }
-    }, 5500);
+      }, 8000); // Wait 8 seconds before marking complete in the UI
+
+    } catch (error) {
+      console.error("M-Pesa Error:", error);
+      triggerToast(`M-Pesa Error: ${(error as Error).message}`, "warning");
+      setMpesaStep("idle"); // Reset so they can try again
+    }
   };
 
   // Close M-Pesa modal and trigger celebratory alerts
