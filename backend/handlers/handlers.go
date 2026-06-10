@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -30,11 +29,11 @@ type HandlerDeps struct {
 
 type CostUpsertInput struct {
 	BuildingID  string  `json:"building_id"`
-	Phase       string  `json:"phase"` 
+	Phase       string  `json:"phase"`
 	Category    string  `json:"category"`
 	Amount      float64 `json:"amount"`
 	Description string  `json:"description"`
-	Date        string  `json:"date"` 
+	Date        string  `json:"date"`
 }
 
 type STKPushRequest struct {
@@ -97,9 +96,10 @@ func (h *HandlerDeps) HandleCreateCost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Native uuid.UUID structural fields kept 100% intact to align with the database types
 	newRecord := models.CostEntry{
-		ID:          uuid.New().String(),
-		BuildingID:  buildingUUID.String(),
+		ID:          uuid.New(),
+		BuildingID:  buildingUUID,
 		Phase:       phaseNormalized,
 		Category:    input.Category,
 		Amount:      input.Amount,
@@ -148,14 +148,14 @@ func (h *HandlerDeps) HandleGetDashboard(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	name := "Unassigned Registered Property Asset"
+	buildingName := "Unassigned Registered Property Asset"
 	location := "Nairobi Metropolitan Area"
 	var totalCapex float64 = 0.0
 	var totalOpex float64 = 0.0
 
 	if h.DB != nil {
 		buildingQuery := `SELECT name, location FROM buildings WHERE id = $1`
-		err = h.DB.QueryRow(ctx, buildingQuery, buildingIDStr).Scan(&name, &location)
+		err = h.DB.QueryRow(ctx, buildingQuery, buildingIDStr).Scan(&buildingName, &location)
 		if err != nil && err != sql.ErrNoRows {
 			SendError(w, http.StatusInternalServerError, "Failed to retrieve building metadata details", "DATABASE_ERROR")
 			return
@@ -167,7 +167,7 @@ func (h *HandlerDeps) HandleGetDashboard(w http.ResponseWriter, r *http.Request)
 		opexQuery := `SELECT COALESCE(SUM(amount), 0.0) FROM cost_entries WHERE building_id = $1 AND (phase = 'opex' OR phase = 'maintenance')`
 		_ = h.DB.QueryRow(ctx, opexQuery, buildingIDStr).Scan(&totalOpex)
 	} else {
-		name = "Delta Corner Commercial Block"
+		buildingName = "Delta Corner Commercial Block"
 		location = "Westlands, Nairobi"
 		totalCapex = 124500000.00
 		totalOpex = 19480000.00
@@ -179,12 +179,13 @@ func (h *HandlerDeps) HandleGetDashboard(w http.ResponseWriter, r *http.Request)
 		{Month: "Mar", CapexBudget: 10.0, CapexActual: 10.5, OpexBudget: 4.5, OpexActual: 5.1},
 	}
 
+	// Key: Value formatting fully normalized with required colons
 	SendJSON(w, http.StatusOK, DashboardAggregationResponse{
 		BuildingID:           buildingIDStr,
-		BuildingName         name,
-		Location             location,
-		TotalCapex           totalCapex,
-		TotalOpex            totalOpex,
+		BuildingName:         buildingName,
+		Location:             location,
+		TotalCapex:           totalCapex,
+		TotalOpex:            totalOpex,
 		TotalCostOfOwnership: totalCapex + totalOpex,
 		AssetHealthGrade:     "A",
 		ChartTrends:          trends,
@@ -227,11 +228,11 @@ func (h *HandlerDeps) HandleInitiateSTKPush(w http.ResponseWriter, r *http.Reque
 			defer tx.Rollback()
 
 			updateTaskQuery := `UPDATE maintenance_tasks SET checkout_request_id = $1, status = 'PROCESSING' WHERE id = $2`
-			_, _ = tx.Exec(ctx, updateTaskQuery, darajaRes.CheckoutRequestID, taskID)
+			_, _ = h.DB.Exec(ctx, updateTaskQuery, darajaRes.CheckoutRequestID, taskID)
 
 			insertTxQuery := `INSERT INTO mpesa_transactions (task_id, merchant_request_id, checkout_request_id, result_code, result_desc, status) 
                               VALUES ($1, $2, $3, $4, $5, 'PENDING')`
-			_, _ = tx.Exec(ctx, insertTxQuery, taskID, darajaRes.MerchantRequestID, darajaRes.CheckoutRequestID, 0, "Awaiting customer response verification validation sequence loop")
+			_, _ = h.DB.Exec(ctx, insertTxQuery, taskID, darajaRes.MerchantRequestID, darajaRes.CheckoutRequestID, 0, "Awaiting customer response verification validation sequence loop")
 
 			_ = tx.Commit()
 		}
@@ -273,7 +274,7 @@ func (h *HandlerDeps) HandleMpesaCallback(w http.ResponseWriter, r *http.Request
 
 	var txExists bool
 	checkQuery := `SELECT EXISTS(SELECT 1 FROM mpesa_transactions WHERE checkout_request_id = $1 AND status != 'PENDING')`
-	_ = tx.QueryRow(ctx, checkQuery, stk.CheckoutRequestID).Scan(&txExists)
+	_ = h.DB.QueryRow(ctx, checkQuery, stk.CheckoutRequestID).Scan(&txExists)
 	if txExists {
 		_ = tx.Commit()
 		w.Header().Set("Content-Type", "application/json")
@@ -315,13 +316,13 @@ func (h *HandlerDeps) HandleMpesaCallback(w http.ResponseWriter, r *http.Request
 	updateTxQuery := `UPDATE mpesa_transactions 
                       SET result_code = $1, result_desc = $2, mpesa_receipt_number = $3, phone_number = $4, amount = $5, status = $6, updated_at = NOW() 
                       WHERE checkout_request_id = $7 RETURNING task_id`
-	
+
 	var taskIDStr string
-	err := tx.QueryRow(ctx, updateTxQuery, stk.ResultCode, stk.ResultDesc, mpesaReceiptNumber, phoneNumber, amount, finalStatus, stk.CheckoutRequestID).Scan(&taskIDStr)
-	
+	err := h.DB.QueryRow(ctx, updateTxQuery, stk.ResultCode, stk.ResultDesc, mpesaReceiptNumber, phoneNumber, amount, finalStatus, stk.CheckoutRequestID).Scan(&taskIDStr)
+
 	if err == nil && taskIDStr != "" {
 		updateTaskQuery := `UPDATE maintenance_tasks SET status = $1 WHERE id = $2`
-		_, _ = tx.Exec(ctx, updateTaskQuery, taskStatus, taskIDStr)
+		_, _ = h.DB.Exec(ctx, updateTaskQuery, taskStatus, taskIDStr)
 	}
 
 	if err := tx.Commit(); err != nil {
