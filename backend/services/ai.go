@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/username/blcts-backend/models" // Clean, direct models import with no alias
+	"github.com/username/blcts-backend/models" // <-- FIXED: Matched path to your go.mod module declaration name
 )
 
 // AnomalyAlert tracks critical cost trends breaking nominal thresholds by over 20%

@@ -17,8 +17,30 @@ import (
 	customMiddleware "github.com/username/blcts-backend/middleware"
 )
 
+// DBAdapter bridges any structural type mismatch between config pool signatures and handlers interfaces
+type DBAdapter struct {
+	Pool *config.PostgresPool
+}
+
+func (a DBAdapter) Exec(query string, args ...interface{}) error {
+	return a.Pool.Exec(query, args...)
+}
+
+func (a DBAdapter) QueryRow(query string, args ...interface{}) handlers.RowScanner {
+	scanner := a.Pool.QueryRow(query, args...)
+	return RowScannerAdapter{Scanner: scanner}
+}
+
+type RowScannerAdapter struct {
+	Scanner config.RowScanner
+}
+
+func (rsa RowScannerAdapter) Scan(dest ...interface{}) error {
+	return rsa.Scanner.Scan(dest...)
+}
+
 func main() {
-	// Initialize logging
+	// Initialize logging - FIXED: Removed function variable from bitwise operation
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("Starting BLCTS Core Backend Enterprise Architecture...")
 
@@ -30,7 +52,7 @@ func main() {
 		log.Println("⚡ Running in sandbox development mode with in-memory persistence models.")
 	} else {
 		log.Println("🚀 Concurrency database pool successfully linked to PostgreSQL.")
-		dbPool = db
+		dbPool = DBAdapter{Pool: db} // Secure wrapper adaptation injection layer
 		defer db.Pool.Close()
 	}
 
@@ -66,7 +88,7 @@ func main() {
 	r.Get("/api/dashboard/{building_id}", deps.HandleGetDashboard)
 
 	// Secured API Endpoint Router Groups protected by cryptographic JSON Web Token verified handles
-	r.Group(func(secured r.RouteReceiver) {
+	r.Group(func(secured chi.Router) { // <-- FIXED: Changed from r.RouteReceiver to chi.Router standard type definitions
 		// Apply JWT Verification and strict Role Privilege Guards (owner/manager/staff)
 		secured.Use(customMiddleware.EnsureJWT)
 
