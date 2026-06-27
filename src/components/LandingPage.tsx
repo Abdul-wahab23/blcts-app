@@ -1,5 +1,5 @@
 import React from "react";
-import { Building2, ArrowRight, Lock, Database, CloudUpload as UploadCloud, Cpu, Coins, TrendingUp, ChartBar as BarChart3, Sparkles, CircleCheck as CheckCircle2, FolderOpen, Sun, Moon } from "lucide-react";
+import { Building2, ArrowRight, Lock, Database, CloudUpload as UploadCloud, Cpu, Coins, ChartBar as BarChart3, Sparkles, FolderOpen, Sun, Moon } from "lucide-react";
 import { motion } from "motion/react";
 
 interface LandingPageProps {

@@ -44,7 +44,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("Starting BLCTS Core Backend Enterprise Architecture...")
 
-	// 1. Establish PostgreSQL Connection Pool handles (with automatic fallback to mock logs if connection fails)
+	// 1. Establish PostgreSQL Connection Pool handles (with automatic fallback if connection fails)
 	var dbPool handlers.DBConnectionPool
 	db, err := config.ConnectDatabase()
 	if err != nil {
@@ -75,7 +75,7 @@ func main() {
 	r.Get("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		status := "healthy"
 		if dbPool == nil {
-			status = "degraded (mock active)"
+			status = "degraded (sandbox mode)"
 		}
 		handlers.SendJSON(w, http.StatusOK, map[string]interface{}{
 			"status":    status,

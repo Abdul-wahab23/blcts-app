@@ -42,7 +42,7 @@ func DisburseContractorFunds(req MpesaDisbursementRequest, contractorName string
 		return nil, fmt.Errorf("invalid receiver phone format: %s. Must be a valid Kenyan mobile number (e.g. 2547XXXXXXXX)", req.ReceiverPhone)
 	}
 
-	// 2. Mock payment network connection latency (250ms - 850ms)
+	// 2. Simulate payment network connection latency (250ms - 850ms)
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	sleepDuration := time.Duration(250+rng.Intn(600)) * time.Millisecond
 	time.Sleep(sleepDuration)

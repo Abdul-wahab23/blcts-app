@@ -65,7 +65,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
     if (!stored) {
       const defaultUsers = [
         {
-          id: "user-demo-admin",
+          id: "user-admin",
           email: "wanderaabdulwahab4@gmail.com",
           name: "Abdulwahab Wandera",
           role: "Developer",
@@ -74,7 +74,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
           passwordHash: "54b79259254eaed6593410bd63c089de0d797d2b4f020683060a21bbad6da5ed" // SHA-256 of "executivePass123"
         },
         {
-          id: "user-demo-manager",
+          id: "user-manager",
           email: "manager.thika@blcts.com",
           name: "Kamau Njoroge",
           role: "Facility Manager",
@@ -83,7 +83,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
           passwordHash: "276cbf1e0dd8b5d1bd515780206dfbf0257d379494feefee8503f2d85e9a7c2a" // SHA-256 of "managerPass99"
         },
         {
-          id: "user-demo-engineer",
+          id: "user-engineer",
           email: "lead.engineer@davis-shirtliff.co.ke",
           name: "Jane Atieno",
           role: "Maintenance Engineer",
@@ -311,7 +311,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
           <div className="p-3 bg-slate-100 dark:bg-slate-900/60 border border-slate-200/40 dark:border-slate-800/80 rounded-2xl flex items-center gap-2 text-xs">
             <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
             <span className="text-slate-550 dark:text-slate-400 leading-normal">
-              Need a test login? Select one of the quick validation credentials on the right pane to pre-fill accounts effortlessly.
+              Select a preset account on the right to quickly access the platform.
             </span>
           </div>
         </div>
@@ -513,7 +513,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                 {/* Quick login preset triggers */}
                 <div className="border-t border-slate-150 dark:border-slate-800/80 pt-5 space-y-3">
                   <div className="text-[9px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider text-center font-display">
-                    Demo Accounts
+                    Quick Access
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <button
@@ -521,7 +521,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                       onClick={() => handleQuickLogin("admin")}
                       className="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 bg-slate-50/50 dark:bg-slate-950/40 p-2.5 rounded-xl text-left transition-all hover:bg-white dark:hover:bg-slate-900 group cursor-pointer"
                     >
-                      <div className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Wandera SaaS</div>
+                      <div className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Abdulwahab Wandera</div>
                       <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-emerald-400 mt-0.5">Admin Executive</div>
                       <div className="text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5">wanderaabdulwahab4@...</div>
                     </button>

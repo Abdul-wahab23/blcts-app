@@ -175,7 +175,7 @@ function ensureDatabase() {
 
   const defaultUsers = [
     {
-      id: "user-demo-admin",
+      id: "user-admin",
       email: "wanderaabdulwahab4@gmail.com",
       name: "Abdulwahab Wandera",
       role: "Developer",
@@ -184,7 +184,7 @@ function ensureDatabase() {
       passwordHash: "54b79259254eaed6593410bd63c089de0d797d2b4f020683060a21bbad6da5ed" // hash of "executivePass123"
     },
     {
-      id: "user-demo-manager",
+      id: "user-manager",
       email: "manager.thika@blcts.com",
       name: "Kamau Njoroge",
       role: "Facility Manager",

@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  Building2, Coins, TrendingUp, Sparkles, Lightbulb, FileText,
-  Wrench, ShieldCheck, Leaf, Users, Gauge, Activity, AlertTriangle,
-  CheckCircle2, ArrowUpRight, ArrowDownRight, Zap, Droplet, Cloud
-} from "lucide-react";
+import { Building2, Coins, TrendingUp, Sparkles, Lightbulb, Wrench, ShieldCheck, Leaf, Users, Gauge, Activity, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, ArrowUpRight, ArrowDownRight, Zap, Droplet, Cloud } from "lucide-react";
 import { Property, AIInsight, ChartDataPoint, Vendor, Asset, ComplianceItem, SustainabilityMetric, AIPrediction, Anomaly } from "../types";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip,

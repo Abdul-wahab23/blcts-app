@@ -1,27 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  FileText,
-  TrendingUp,
-  Layers,
-  Coins,
-  Calendar,
-  ChevronDown,
-  ChevronRight,
-  Download,
-  FileSpreadsheet,
-  Printer,
-  Building2,
-  Wrench,
-  Brain,
-  Lightbulb,
-  ShieldCheck,
-  AlertTriangle,
-  Activity,
-  CircleDollarSign,
-  Gauge,
-  ClipboardList,
-  TrendingDown,
-} from "lucide-react";
+import { FileText, TrendingUp, Layers, Calendar, ChevronDown, ChevronRight, Download, FileSpreadsheet, Printer, Building2, Wrench, Brain, Lightbulb, ShieldCheck, TriangleAlert as AlertTriangle, Activity, CircleDollarSign, ClipboardList } from "lucide-react";
 import {
   ResponsiveContainer,
   PieChart,

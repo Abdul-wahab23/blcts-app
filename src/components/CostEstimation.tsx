@@ -1,17 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Cpu, 
-  Sparkles, 
-  Building2, 
-  Layers, 
-  RefreshCw,
-  Sliders,
-  AlertCircle,
-  Lightbulb,
-  CheckCircle2,
-  FileText,
-  Info
-} from "lucide-react";
+import { Cpu, Sparkles, Building2, Layers, RefreshCw, FileSliders as Sliders, Lightbulb, CircleCheck as CheckCircle2, Info } from "lucide-react";
 import { Property } from "../types";
 
 interface CostEstimationProps {

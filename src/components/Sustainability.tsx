@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import {
   Leaf, Zap, Droplets, CloudOff, Sun, Building2, TrendingUp,
-  ArrowUpDown, ChevronDown, Filter, Activity, Recycle
+  ArrowUpDown, Activity, Recycle
 } from "lucide-react";
 import { SustainabilityMetric } from "../types";
 import {

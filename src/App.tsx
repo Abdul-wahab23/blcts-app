@@ -401,7 +401,7 @@ export default function App() {
             onClick={() => setShowAuthOnly(false)} 
             className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 cursor-pointer shadow-sm transition-all hover:scale-95 active:scale-90"
           >
-            ← Space Overview
+            ← Back to Home
           </button>
         </div>
 

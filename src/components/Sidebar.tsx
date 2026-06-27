@@ -1,10 +1,7 @@
 import React from "react";
 import {
-  Building2,
-  Coins,
   Activity,
   X,
-  ChevronDown,
   Building,
   MapPin,
   FileText,

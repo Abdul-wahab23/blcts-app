@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  Sparkles, AlertTriangle, Brain, TrendingUp, Activity, Gauge,
-  CheckCircle2, Filter, ArrowUpDown, Lightbulb, Clock, Database,
-  Target, Zap, ShieldAlert, ChevronDown
-} from "lucide-react";
+import { Sparkles, TriangleAlert as AlertTriangle, Brain, Activity, Gauge, CircleCheck as CheckCircle2, ListFilter as Filter, ArrowUpDown, Lightbulb, Clock, Database, Target, Zap, ShieldAlert, ChevronDown } from "lucide-react";
 import { AIPrediction, Anomaly } from "../types";
 import {
   ResponsiveContainer, RadialBarChart, RadialBar, PolarAngleAxis,

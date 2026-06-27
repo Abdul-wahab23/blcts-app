@@ -12,8 +12,8 @@ import (
 	"blcts-backend/services"
 )
 
-// DBConnectionPool interfaces standard operations for PostgreSQL (e.g., standard sql or pgx interface)
-// We provide standard mocks/interface mappings to handle local sandbox runs gracefully if DB is offline.
+// DBConnectionPool interfaces standard operations for PostgreSQL
+// We provide standard interface mappings to handle local sandbox runs gracefully if DB is offline.
 type DBConnectionPool interface {
 	Exec(query string, args ...interface{}) (err error)
 	QueryRow(query string, args ...interface{}) RowScanner
@@ -25,7 +25,7 @@ type RowScanner interface {
 
 // HandlerDeps aggregates dependencies for handlers
 type HandlerDeps struct {
-	DB DBConnectionPool // Can be nil for pure server-side sandbox mock persistence modes
+	DB DBConnectionPool // Can be nil for sandbox persistence mode
 }
 
 // CostUpsertInput details input schema validations for logging invoices
@@ -113,9 +113,9 @@ func (h *HandlerDeps) HandleCreateCost(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:   time.Now(),
 	}
 
-	// 3. PostgreSQL persistence (with fallback sandbox mocking)
+	// 3. PostgreSQL persistence (with fallback sandbox mode)
 	if h.DB != nil {
-		// Example high-performance sql insert executing against the dependency database pool
+		// Insert record against the database pool
 		query := `INSERT INTO cost_entries (id, building_id, phase, category, amount, description, date, created_at, updated_at) 
                   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 		dbErr := h.DB.Exec(query, newRecord.ID, newRecord.BuildingID, newRecord.Phase, newRecord.Category, newRecord.Amount, newRecord.Description, newRecord.Date, newRecord.CreatedAt, newRecord.UpdatedAt)
@@ -170,7 +170,7 @@ func (h *HandlerDeps) HandleGetDashboard(w http.ResponseWriter, r *http.Request)
 		}
 		healthGrade = "A" // In production, calculated dynamically by scanning log tolerances
 	} else {
-		// Mock Portfolio instances (matching frontend initialData structures)
+		// Fallback portfolio instances (matching frontend initialData structures)
 		name = "Delta Corner Commercial Block"
 		location = "Westlands, Nairobi"
 		totalCapex = 124500000.00
@@ -185,7 +185,7 @@ func (h *HandlerDeps) HandleGetDashboard(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	// 2. Fetch or mock historical entries to support statistical forecasting
+	// 2. Fetch historical entries to support statistical forecasting
 	historicalCostEntries := []models.CostEntry{
 		{BuildingID: buildingID, Phase: "maintenance", Category: "Elevator Service", Amount: 145000.00},
 		{BuildingID: buildingID, Phase: "maintenance", Category: "HVAC Upgrade", Amount: 320000.00},

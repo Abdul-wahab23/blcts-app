@@ -1,27 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
-import { 
-  Building2, 
-  Plus, 
-  Trash2, 
-  FileText, 
-  UploadCloud, 
-  Check, 
-  Sparkles,
-  MapPin,
-  TrendingUp,
-  X,
-  FileCheck2,
-  RefreshCw
-} from "lucide-react";
-import { Property, CostEntry } from "../types";
+import { Building2, Plus, Trash2, FileText, CloudUpload as UploadCloud, Check, Sparkles, MapPin, X, FileCheck2, RefreshCw } from "lucide-react";
+import { Property } from "../types";
 
 interface PropertyManagementProps {
   properties: Property[];
   setProperties: React.Dispatch<React.SetStateAction<Property[]>>;
   selectedPropertyId: string;
   setSelectedPropertyId: (id: string) => void;
-  costEntries: CostEntry[];
-  setCostEntries: React.Dispatch<React.SetStateAction<CostEntry[]>>;
+  costEntries: any[];
+  setCostEntries: any;
   maintenanceTasks: any[];
   setMaintenanceTasks: any;
   currentLanguage: "en" | "sw";
