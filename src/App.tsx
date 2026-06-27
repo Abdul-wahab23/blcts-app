@@ -4,17 +4,7 @@
  */
 
 import React, { useState, useMemo } from "react";
-import {
-  Menu,
-  CheckCircle2,
-  AlertTriangle,
-  Info,
-  Building2,
-  Plus,
-  Sun,
-  Moon,
-  LogOut
-} from "lucide-react";
+import { Menu, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, Info, Building2, Plus, Sun, Moon, LogOut } from "lucide-react";
 import {
   initialProperties,
   initialCostEntries,
@@ -391,16 +381,7 @@ export default function App() {
           )}
           <LandingPage 
             onEnterApp={() => {
-              // Direct instant administration sandbox mode
-              const guestAdmin: User = {
-                id: "user-demo-admin",
-                name: "Abdulwahab Wandera",
-                email: "wanderaabdulwahab4@gmail.com",
-                role: "Developer",
-                organization: "Wandera Investments Ltd",
-                phone: "+254 712 345 678"
-              };
-              handleLoginSuccess(guestAdmin);
+              setShowAuthOnly(true);
             }} 
             onEnterAuth={(tab) => {
               setShowAuthOnly(true);

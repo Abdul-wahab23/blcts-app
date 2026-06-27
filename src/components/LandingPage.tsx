@@ -201,7 +201,7 @@ export default function LandingPage({
               className="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group"
               id="hero-primary-btn"
             >
-              Explore Live System
+              Get Started
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
 
@@ -210,7 +210,7 @@ export default function LandingPage({
               className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm rounded-xl transition"
               id="hero-secondary-btn"
             >
-              Sign In to Dashboard
+              Sign In
             </button>
           </motion.div>
         </div>

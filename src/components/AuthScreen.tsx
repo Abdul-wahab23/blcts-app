@@ -510,10 +510,10 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                   </button>
                 </form>
 
-                {/* Quick login preset triggers - Absolute Craft polish for effortless testing */}
+                {/* Quick login preset triggers */}
                 <div className="border-t border-slate-150 dark:border-slate-800/80 pt-5 space-y-3">
                   <div className="text-[9px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider text-center font-display">
-                    🎯 Quick Validation Presets (Self-Testing)
+                    Demo Accounts
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <button

@@ -12,9 +12,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/username/blcts-backend/config"
-	"github.com/username/blcts-backend/handlers"
-	customMiddleware "github.com/username/blcts-backend/middleware"
+	"blcts-backend/config"
+	"blcts-backend/handlers"
+	customMiddleware "blcts-backend/middleware"
 )
 
 // DBAdapter bridges any structural type mismatch between config pool signatures and handlers interfaces
@@ -40,7 +40,7 @@ func (rsa RowScannerAdapter) Scan(dest ...interface{}) error {
 }
 
 func main() {
-	// Initialize logging - FIXED: Removed function variable from bitwise operation
+	// Initialize logging
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("Starting BLCTS Core Backend Enterprise Architecture...")
 
@@ -88,7 +88,7 @@ func main() {
 	r.Get("/api/dashboard/{building_id}", deps.HandleGetDashboard)
 
 	// Secured API Endpoint Router Groups protected by cryptographic JSON Web Token verified handles
-	r.Group(func(secured chi.Router) { // <-- FIXED: Changed from r.RouteReceiver to chi.Router standard type definitions
+	r.Group(func(secured chi.Router) {
 		// Apply JWT Verification and strict Role Privilege Guards (owner/manager/staff)
 		secured.Use(customMiddleware.EnsureJWT)
 
