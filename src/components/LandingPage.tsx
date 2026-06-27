@@ -1,20 +1,5 @@
 import React from "react";
-import { 
-  Building2, 
-  ArrowRight, 
-  Lock, 
-  Database,
-  UploadCloud,
-  Cpu,
-  Coins,
-  TrendingUp,
-  BarChart3,
-  Sparkles,
-  CheckCircle2,
-  FolderOpen,
-  Sun,
-  Moon
-} from "lucide-react";
+import { Building2, ArrowRight, Lock, Database, CloudUpload as UploadCloud, Cpu, Coins, TrendingUp, ChartBar as BarChart3, Sparkles, CircleCheck as CheckCircle2, FolderOpen, Sun, Moon } from "lucide-react";
 import { motion } from "motion/react";
 
 interface LandingPageProps {
@@ -154,18 +139,6 @@ export default function LandingPage({
       {/* HERO SECTION */}
       <section className="relative overflow-hidden py-20 lg:py-28" id="hero-section">
         <div className="max-w-7xl mx-auto px-6 text-center space-y-8 relative z-10">
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 text-xs font-bold text-indigo-600 dark:text-indigo-400"
-            id="hero-tagline"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            University Final Year Capstone Project
-          </motion.div>
-
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -333,11 +306,11 @@ export default function LandingPage({
             <div className="flex items-center justify-center md:justify-start gap-2 text-slate-900 dark:text-white">
               <Building2 className="w-4 h-4 text-indigo-500" />
               <span className="font-black text-xs uppercase tracking-wider">
-                BLCTS Capstone System
+                BLCTS
               </span>
             </div>
             <p className="text-[11px] text-slate-400 dark:text-slate-500 font-light">
-              Designed as a final year presentation project for building engineering & computer science curriculum.
+              AI-powered building lifecycle cost management for the construction industry.
             </p>
           </div>
 
