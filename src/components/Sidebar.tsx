@@ -18,7 +18,9 @@ import {
   LayoutDashboard,
   Building2
 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { Property, ActiveTabType } from "../types";
+import { staggerContainer, fadeInUp } from "../utils/animations";
 
 interface SidebarProps {
   properties: Property[];
@@ -150,7 +152,12 @@ export default function Sidebar({
       </div>
 
       {/* CORE NAVIGATION LINKS */}
-      <div className="flex-1 overflow-y-auto px-2 py-4 space-y-1 scrollbar-none">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="flex-1 overflow-y-auto px-2 py-4 space-y-1 scrollbar-none"
+      >
 
         <span className="text-[9px] uppercase font-bold text-slate-500 px-3 tracking-wide select-none block pb-1">
           {t.financialHeader}
@@ -159,33 +166,47 @@ export default function Sidebar({
         {visibleNavItems.map((item) => {
           const Icon = item.icon;
           return (
-            <button
+            <motion.button
               key={item.tab}
+              variants={fadeInUp}
+              whileHover={{ x: 3, transition: { duration: 0.15 } }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => { setActiveTab(item.tab); setIsMobileSidebarOpen(false); }}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer relative overflow-hidden ${
                 activeTab === item.tab
-                  ? "bg-slate-900 text-white border-l-2 border-emerald-500 pl-2 shadow-inner font-extrabold"
+                  ? "bg-slate-900 text-white font-extrabold"
                   : "text-slate-400 hover:text-white hover:bg-slate-900/40"
               }`}
             >
+              {activeTab === item.tab && (
+                <motion.div
+                  layoutId="sidebar-active-indicator"
+                  className="absolute left-0 top-0 bottom-0 w-0.5 bg-emerald-500"
+                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                />
+              )}
               <div className="flex items-center gap-2.5">
                 <Icon className={`w-3.5 h-3.5 shrink-0 ${activeTab === item.tab ? "text-emerald-400" : item.color}`} />
                 <span>{item.label}</span>
               </div>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-black border ${
-                  item.tab === "notifications"
-                    ? "bg-rose-950 text-rose-400 border-rose-900"
-                    : "bg-emerald-950 text-emerald-400 border-emerald-900"
-                }`}>
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                  className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-black border ${
+                    item.tab === "notifications"
+                      ? "bg-rose-950 text-rose-400 border-rose-900"
+                      : "bg-emerald-950 text-emerald-400 border-emerald-900"
+                  }`}>
                   {item.badge}
-                </span>
+                </motion.span>
               )}
-            </button>
+            </motion.button>
           );
         })}
 
-      </div>
+      </motion.div>
 
       {/* Education Box */}
       <div className="p-3.5 mx-3 mb-3 bg-[#0a0f1d] border border-slate-900 rounded-xl shrink-0 select-none text-left">

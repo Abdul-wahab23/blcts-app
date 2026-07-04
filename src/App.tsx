@@ -5,6 +5,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Menu, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, Info, Building2, Plus, Sun, Moon, LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   initialProperties,
   initialCostEntries,
@@ -484,14 +485,30 @@ export default function App() {
     <div className={`min-h-screen ${isDarkMode ? "dark bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"} font-sans flex flex-col antialiased selection:bg-emerald-500 selection:text-white transition-colors duration-200`}>
       
       {/* Toast Notifications */}
+      <AnimatePresence>
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-3 bg-slate-950 text-white py-3 px-5 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-slate-900 animate-slide-in">
-          {toastType === "success" && <CheckCircle2 className="w-4.5 h-4.5 text-emerald-400 shrink-0" />}
-          {toastType === "info" && <Info className="w-4.5 h-4.5 text-teal-400 shrink-0" />}
-          {toastType === "warning" && <AlertTriangle className="w-4.5 h-4.5 text-amber-400 shrink-0" />}
-          <div className="text-xs font-semibold tracking-wide">{toastMessage}</div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, x: 40, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 40, scale: 0.95 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="fixed top-4 right-4 z-50 flex flex-col bg-slate-950 text-white py-3 px-5 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-slate-900 overflow-hidden"
+        >
+          <div className="flex items-center gap-3">
+            {toastType === "success" && <CheckCircle2 className="w-4.5 h-4.5 text-emerald-400 shrink-0" />}
+            {toastType === "info" && <Info className="w-4.5 h-4.5 text-teal-400 shrink-0" />}
+            {toastType === "warning" && <AlertTriangle className="w-4.5 h-4.5 text-amber-400 shrink-0" />}
+            <div className="text-xs font-semibold tracking-wide">{toastMessage}</div>
+          </div>
+          <motion.div
+            initial={{ width: "100%" }}
+            animate={{ width: "0%" }}
+            transition={{ duration: 4.5, ease: "linear" }}
+            className={`h-0.5 mt-2 ${toastType === "success" ? "bg-emerald-500" : toastType === "info" ? "bg-teal-500" : "bg-amber-500"}`}
+          />
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Main Container */}
       <div className="flex flex-1 relative overflow-hidden">
@@ -614,8 +631,17 @@ export default function App() {
 
           {/* Layout Content Body */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 max-w-7xl w-full mx-auto">
-            
+
             {/* TAB VIEWS */}
+            <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-6"
+            >
             {activeTab === "dashboard" && (
               <ExecutiveDashboard
                 selectedProperty={selectedProperty}
@@ -786,6 +812,8 @@ export default function App() {
                 triggerToast={triggerToast}
               />
             )}
+            </motion.div>
+            </AnimatePresence>
 
             {/* EDUCATION FOOTER OUTLINE ON TOTAL COST OF OWNERSHIP */}
             <footer className="bg-white rounded-2xl p-6 border border-slate-200/60 text-xs text-slate-500 space-y-3 leading-relaxed shadow-[0_1px_4px_rgba(0,0,0,0.01)] font-sans">

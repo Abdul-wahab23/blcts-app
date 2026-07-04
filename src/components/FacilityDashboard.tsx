@@ -1,6 +1,9 @@
 import React, { useMemo } from "react";
 import { Wrench, Building2, DollarSign, TriangleAlert as AlertTriangle, ShieldCheck, Sparkles, Bell, Activity, Leaf, Cpu, MapPin } from "lucide-react";
+import { motion } from "motion/react";
 import { Property, MaintenanceTask, Asset, ComplianceItem, SustainabilityMetric, AIPrediction, Anomaly, AppNotification, User, ActiveTabType } from "../types";
+import { staggerContainer, fadeInUp, cardHover } from "../utils/animations";
+import CountUp from "./CountUp";
 
 interface FacilityDashboardProps {
   selectedProperty: Property;
@@ -62,12 +65,17 @@ export default function FacilityDashboard({
       </div>
 
       {/* Building KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiCard icon={Wrench} label="Pending Tasks" value={String(pendingTasks.length)} color="text-orange-400" />
-        <KpiCard icon={AlertTriangle} label="Overdue" value={String(overdueTasks.length)} color="text-rose-400" />
-        <KpiCard icon={ShieldCheck} label="Compliance Issues" value={String(complianceIssues.length)} color="text-amber-400" />
-        <KpiCard icon={DollarSign} label="Building TCO" value={formatKSh(calculations.lifecycleTco || calculations.tco)} color="text-emerald-400" />
-      </div>
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+      >
+        <KpiCard icon={Wrench} label="Pending Tasks" value={pendingTasks.length} color="text-orange-400" />
+        <KpiCard icon={AlertTriangle} label="Overdue" value={overdueTasks.length} color="text-rose-400" />
+        <KpiCard icon={ShieldCheck} label="Compliance Issues" value={complianceIssues.length} color="text-amber-400" />
+        <KpiCard icon={DollarSign} label="Building TCO" value={calculations.lifecycleTco || calculations.tco} color="text-emerald-400" prefix="KSh " />
+      </motion.div>
 
       {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -279,14 +287,20 @@ export default function FacilityDashboard({
   );
 }
 
-function KpiCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string; color: string }) {
+function KpiCard({ icon: Icon, label, value, color, prefix }: { icon: any; label: string; value: number; color: string; prefix?: string }) {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-4 space-y-2">
+    <motion.div
+      variants={fadeInUp}
+      whileHover={cardHover}
+      className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-4 space-y-2 cursor-default"
+    >
       <Icon className={`w-5 h-5 ${color}`} />
       <div>
         <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider block">{label}</span>
-        <span className="text-sm font-black text-slate-900 dark:text-white font-mono block mt-1 break-all">{value}</span>
+        <span className="text-sm font-black text-slate-900 dark:text-white font-mono block mt-1 break-all">
+          <CountUp end={value} prefix={prefix || ""} duration={800} />
+        </span>
       </div>
-    </div>
+    </motion.div>
   );
 }

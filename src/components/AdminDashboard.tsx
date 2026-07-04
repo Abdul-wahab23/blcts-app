@@ -1,7 +1,10 @@
 import React, { useMemo } from "react";
 import { Users, Building2, Wrench, DollarSign, TrendingUp, TriangleAlert as AlertTriangle, Activity, ShieldCheck, Cpu, FileText, MapPin, Clock } from "lucide-react";
+import { motion } from "motion/react";
 import { Property, CostEntry, MaintenanceTask, Vendor, Asset, ComplianceItem, AIPrediction, Anomaly, AppNotification, SystemSettings, User, ActiveTabType } from "../types";
 import { getAllCounties, compareCountyPrices } from "../utils/pricingEngine";
+import { staggerContainer, fadeInUp, cardHover } from "../utils/animations";
+import CountUp from "./CountUp";
 
 interface AdminDashboardProps {
   properties: Property[];
@@ -76,16 +79,21 @@ export default function AdminDashboard({
       </div>
 
       {/* KPI Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <KpiCard icon={Users} label="Total Users" value={String(kpis.totalUsers)} color="text-indigo-400" />
-        <KpiCard icon={Building2} label="Active Projects" value={String(kpis.activeProjects)} color="text-emerald-400" />
-        <KpiCard icon={Building2} label="Buildings Registered" value={String(kpis.buildingsRegistered)} color="text-sky-400" />
-        <KpiCard icon={Wrench} label="Pending Maintenance" value={String(kpis.pendingMaintenance)} color="text-orange-400" />
-        <KpiCard icon={DollarSign} label="Total Construction Cost" value={formatKSh(kpis.totalConstructionCost)} color="text-teal-400" />
-        <KpiCard icon={TrendingUp} label="Total Lifecycle Cost" value={formatKSh(kpis.totalLifecycleCost)} color="text-cyan-400" />
-        <KpiCard icon={AlertTriangle} label="Critical Alerts" value={String(kpis.criticalAlerts)} color="text-rose-400" />
-        <KpiCard icon={ShieldCheck} label="Compliance Issues" value={String(kpis.complianceIssues)} color="text-amber-400" />
-      </div>
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      >
+        <KpiCard icon={Users} label="Total Users" value={kpis.totalUsers} color="text-indigo-400" />
+        <KpiCard icon={Building2} label="Active Projects" value={kpis.activeProjects} color="text-emerald-400" />
+        <KpiCard icon={Building2} label="Buildings Registered" value={kpis.buildingsRegistered} color="text-sky-400" />
+        <KpiCard icon={Wrench} label="Pending Maintenance" value={kpis.pendingMaintenance} color="text-orange-400" />
+        <KpiCard icon={DollarSign} label="Total Construction Cost" value={kpis.totalConstructionCost} color="text-teal-400" prefix="KSh " />
+        <KpiCard icon={TrendingUp} label="Total Lifecycle Cost" value={kpis.totalLifecycleCost} color="text-cyan-400" prefix="KSh " />
+        <KpiCard icon={AlertTriangle} label="Critical Alerts" value={kpis.criticalAlerts} color="text-rose-400" />
+        <KpiCard icon={ShieldCheck} label="Compliance Issues" value={kpis.complianceIssues} color="text-amber-400" />
+      </motion.div>
 
       {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -209,17 +217,23 @@ export default function AdminDashboard({
   );
 }
 
-function KpiCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string; color: string }) {
+function KpiCard({ icon: Icon, label, value, color, prefix }: { icon: any; label: string; value: number; color: string; prefix?: string }) {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-4 space-y-2">
+    <motion.div
+      variants={fadeInUp}
+      whileHover={cardHover}
+      className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-4 space-y-2 cursor-default"
+    >
       <div className="flex items-center justify-between">
         <Icon className={`w-5 h-5 ${color}`} />
       </div>
       <div>
         <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider block">{label}</span>
-        <span className="text-sm font-black text-slate-900 dark:text-white font-mono block mt-1 break-all">{value}</span>
+        <span className="text-sm font-black text-slate-900 dark:text-white font-mono block mt-1 break-all">
+          <CountUp end={value} prefix={prefix || ""} duration={800} />
+        </span>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
