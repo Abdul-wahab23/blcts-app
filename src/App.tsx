@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import { Menu, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, Info, Building2, Plus, Sun, Moon, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -23,13 +23,14 @@ import {
   getFinancialTrends,
   getAIInsights
 } from "./data";
-import { Property, CostEntry, MaintenanceTask, LifecyclePhase, User, Vendor, Material, Asset, MaintenanceRecord, ComplianceItem, SustainabilityMetric, AIPrediction, Anomaly, AppNotification, SystemSettings, AuditLog, isAdminRole, isFacilityManagerRole } from "./types";
+import { Property, CostEntry, MaintenanceTask, LifecyclePhase, User, Vendor, Material, Asset, MaintenanceRecord, ComplianceItem, SustainabilityMetric, AIPrediction, Anomaly, AppNotification, SystemSettings, AuditLog, isAdminRole, isFacilityManagerRole, isOwnerRole } from "./types";
 
 // Import modular sub-components for "Professional Polish" theme and chunked optimization
 import Sidebar from "./components/Sidebar";
 import ExecutiveDashboard from "./components/ExecutiveDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import FacilityDashboard from "./components/FacilityDashboard";
+import OwnerDashboard from "./components/OwnerDashboard";
 import SystemSettingsPanel from "./components/SystemSettings";
 import UserManagement from "./components/UserManagement";
 import VendorCenter from "./components/VendorCenter";
@@ -151,6 +152,7 @@ export default function App() {
   // Role detection
   const userIsAdmin = currentUser ? isAdminRole(currentUser.role) : false;
   const userIsFacilityManager = currentUser ? isFacilityManagerRole(currentUser.role) : false;
+  const userIsOwner = currentUser ? isOwnerRole(currentUser.role) : false;
   
   // UI states
   const [activeTab, setActiveTab] = useState<ActiveTabType>("dashboard");
@@ -160,8 +162,34 @@ export default function App() {
     if (currentUser && activeTab === "dashboard") {
       if (userIsAdmin) setActiveTab("admin-dashboard");
       else if (userIsFacilityManager) setActiveTab("facility-dashboard");
+      else if (userIsOwner) setActiveTab("owner-dashboard");
     }
-  }, [currentUser]);
+  }, [currentUser, activeTab, userIsAdmin, userIsFacilityManager, userIsOwner]);
+
+  // Define allowed tabs per role (single source of truth)
+  const allowedTabsForRole = React.useMemo((): Set<ActiveTabType> => {
+    const all: ActiveTabType[] = ["dashboard", "properties-mgmt", "cost-estimation", "vendors", "assets", "maintenance", "ai-predictions", "sustainability", "compliance", "reports", "notifications"];
+    if (!currentUser) return new Set();
+    if (userIsOwner) return new Set(["owner-dashboard", "dashboard", "properties-mgmt", "ai-predictions", "sustainability", "reports", "notifications"]);
+    if (userIsFacilityManager) return new Set([...all, "facility-dashboard"]);
+    if (userIsAdmin) return new Set([...all, "admin-dashboard", "facility-dashboard", "owner-dashboard", "user-management", "system-settings"]);
+    return new Set(all);
+  }, [currentUser, userIsAdmin, userIsFacilityManager, userIsOwner]);
+
+  // Tab guard: redirect unauthorized tab access immediately
+  React.useEffect(() => {
+    if (!currentUser) return;
+    if (!allowedTabsForRole.has(activeTab)) {
+      if (userIsAdmin) setActiveTab("admin-dashboard");
+      else if (userIsFacilityManager) setActiveTab("facility-dashboard");
+      else if (userIsOwner) setActiveTab("owner-dashboard");
+      else setActiveTab("dashboard");
+    }
+  }, [activeTab, currentUser, allowedTabsForRole, userIsAdmin, userIsFacilityManager, userIsOwner]);
+
+  // Check if current tab is allowed (for render guards to prevent flash)
+  const isTabAllowed = (tab: ActiveTabType): boolean => allowedTabsForRole.has(tab);
+
   const [currentLanguage, setCurrentLanguage] = useState<"en" | "sw">("en");
   const [searchQuery, setSearchQuery] = useState("");
   const [phaseFilter, setPhaseFilter] = useState<string>("All");
@@ -192,23 +220,48 @@ export default function App() {
   }, [properties, selectedPropertyId]);
 
   // Toast trigger helper
-  const triggerToast = (msg: string, type: "success" | "info" | "warning" = "success") => {
+  const toastTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const triggerToast = useCallback((msg: string, type: "success" | "info" | "warning" = "success") => {
     setToastMessage(msg);
     setToastType(type);
-    setTimeout(() => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    toastTimeoutRef.current = setTimeout(() => {
       setToastMessage(null);
-    }, 4500);
-  };
+      toastTimeoutRef.current = null;
+    }, 4000);
+  }, []);
 
   const handleLoginSuccess = (userPayload: User) => {
     setCurrentUser(userPayload);
     try {
       localStorage.setItem("blcts-user", JSON.stringify(userPayload));
     } catch (e) {}
+    const newLog: AuditLog = {
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      userId: userPayload.id,
+      userName: userPayload.name,
+      role: userPayload.role,
+      action: "System Login",
+      details: `${userPayload.role} logged into platform`
+    };
+    updateSystemSettings({ auditLogs: [newLog, ...systemSettings.auditLogs].slice(0, 100) });
     triggerToast(`Welcome back, ${userPayload.name}! Access granted as ${userPayload.role}.`, "success");
   };
 
   const handleLogout = () => {
+    if (currentUser) {
+      const newLog: AuditLog = {
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        userId: currentUser.id,
+        userName: currentUser.name,
+        role: currentUser.role,
+        action: "System Logout",
+        details: `${currentUser.role} logged out`
+      };
+      updateSystemSettings({ auditLogs: [newLog, ...systemSettings.auditLogs].slice(0, 100) });
+    }
     setCurrentUser(null);
     try {
       localStorage.removeItem("blcts-user");
@@ -389,7 +442,7 @@ export default function App() {
       date,
       contractor,
       status: "Paid",
-      description: description || "Manually logged via Developer Portal"
+      description: description || "Manually logged cost entry"
     };
 
     setCostEntries([newRecord, ...costEntries]);
@@ -530,6 +583,7 @@ export default function App() {
           unreadNotifications={notifications.filter(n => !n.isRead).length}
           userIsAdmin={userIsAdmin}
           userIsFacilityManager={userIsFacilityManager}
+          userIsOwner={userIsOwner}
         />
 
         {/* Outer overlay for mobile sidebar */}
@@ -609,7 +663,7 @@ export default function App() {
                     {currentUser?.role || "System Administrator"}
                   </span>
                 </div>
-                <div className="w-9 h-9 rounded-xl bg-slate-950 dark:bg-slate-850 text-slate-100 font-extrabold text-xs flex items-center justify-center border border-slate-800 dark:border-slate-700 shadow-sm select-none">
+                <div className="w-9 h-9 rounded-xl bg-slate-950 dark:bg-slate-900 text-slate-100 font-extrabold text-xs flex items-center justify-center border border-slate-800 dark:border-slate-700 shadow-sm select-none">
                   {currentUser ? getInitials(currentUser.name) : "AW"}
                 </div>
                 
@@ -705,6 +759,23 @@ export default function App() {
               />
             )}
 
+            {activeTab === "owner-dashboard" && userIsOwner && (
+              <OwnerDashboard
+                properties={properties}
+                costEntries={costEntries}
+                maintenanceTasks={maintenanceTasks}
+                predictions={predictions}
+                anomalies={anomalies}
+                compliance={complianceItems}
+                sustainability={sustainabilityMetrics}
+                assets={assets}
+                notifications={notifications}
+                setActiveTab={setActiveTab}
+                triggerToast={triggerToast}
+                currentUser={currentUser}
+              />
+            )}
+
             {activeTab === "system-settings" && userIsAdmin && (
               <SystemSettingsPanel
                 systemSettings={systemSettings}
@@ -721,7 +792,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === "properties-mgmt" && (
+            {activeTab === "properties-mgmt" && isTabAllowed("properties-mgmt") && (
               <PropertyManagement
                 properties={properties}
                 setProperties={setProperties}
@@ -736,18 +807,18 @@ export default function App() {
               />
             )}
 
-            {activeTab === "cost-estimation" && (
+            {activeTab === "cost-estimation" && isTabAllowed("cost-estimation") && (
               <CostEstimation
                 selectedProperty={selectedProperty}
                 triggerToast={triggerToast}
               />
             )}
 
-            {activeTab === "vendors" && (
+            {activeTab === "vendors" && isTabAllowed("vendors") && (
               <VendorCenter vendors={vendors} materials={materials} triggerToast={triggerToast} />
             )}
 
-            {activeTab === "assets" && (
+            {activeTab === "assets" && isTabAllowed("assets") && (
               <AssetManagement
                 assets={assets}
                 selectedPropertyId={selectedPropertyId}
@@ -755,7 +826,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === "maintenance" && (
+            {activeTab === "maintenance" && isTabAllowed("maintenance") && (
               <MaintenanceManagement
                 maintenanceRecords={maintenanceRecords}
                 assets={assets}
@@ -764,7 +835,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === "ai-predictions" && (
+            {activeTab === "ai-predictions" && isTabAllowed("ai-predictions") && (
               <AIPredictions
                 predictions={predictions}
                 anomalies={anomalies}
@@ -773,7 +844,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === "sustainability" && (
+            {activeTab === "sustainability" && isTabAllowed("sustainability") && (
               <Sustainability
                 sustainability={sustainabilityMetrics}
                 selectedPropertyId={selectedPropertyId}
@@ -781,7 +852,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === "compliance" && (
+            {activeTab === "compliance" && isTabAllowed("compliance") && (
               <Compliance
                 compliance={complianceItems}
                 selectedPropertyId={selectedPropertyId}
@@ -789,7 +860,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === "notifications" && (
+            {activeTab === "notifications" && isTabAllowed("notifications") && (
               <Notifications
                 notifications={notifications}
                 selectedPropertyId={selectedPropertyId}
@@ -797,7 +868,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === "reports" && (
+            {activeTab === "reports" && isTabAllowed("reports") && (
               <Reports
                 selectedProperty={selectedProperty}
                 costEntries={costEntries.filter((e) => e.propertyId === selectedPropertyId)}

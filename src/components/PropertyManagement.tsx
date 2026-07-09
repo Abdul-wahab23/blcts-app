@@ -111,8 +111,32 @@ export default function PropertyManagement({
   // Form handlers
   const handleCreateProject = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProject.name || !newProject.location) {
-      triggerToast("Please provide a name and location for the project.", "warning");
+    if (!newProject.name || !newProject.name.trim()) {
+      triggerToast("Please provide a name for the project.", "warning");
+      return;
+    }
+    if (!newProject.location || !newProject.location.trim()) {
+      triggerToast("Please select a location for the project.", "warning");
+      return;
+    }
+    const capex = Number(newProject.capexBudget);
+    if (isNaN(capex) || capex <= 0) {
+      triggerToast("Please enter a valid CAPEX budget greater than zero.", "warning");
+      return;
+    }
+    const opex = Number(newProject.opexBudget);
+    if (isNaN(opex) || opex <= 0) {
+      triggerToast("Please enter a valid OPEX budget greater than zero.", "warning");
+      return;
+    }
+    const floors = Number(newProject.floors);
+    if (isNaN(floors) || floors < 1) {
+      triggerToast("Please enter at least 1 floor.", "warning");
+      return;
+    }
+    const area = Number(newProject.estimatedFloorArea);
+    if (isNaN(area) || area <= 0) {
+      triggerToast("Please enter a valid floor area greater than zero.", "warning");
       return;
     }
 
@@ -243,15 +267,13 @@ export default function PropertyManagement({
         triggerToast("AI survey completed! Review and confirm the plan metrics below.", "success");
       } catch (err) {
         console.error("Plan Analysis Error:", err);
-        triggerToast("Used safe local parser fallback for plan specifications.", "info");
+        triggerToast("Could not analyze the uploaded plan. Please enter specifications manually below.", "warning");
         setAnalyzedResult({
-          estimatedFloorArea: 2950,
-          floors: 5,
-          buildingType: "Mixed-Use",
+          estimatedFloorArea: 0,
+          floors: 1,
+          buildingType: "Residential",
           observations: [
-            "Extracted layout shows optimized column placement minimizing load transfer structural complexity.",
-            "Elevation metrics denote typical residential floor-to-floor clearances of 3.0 meters.",
-            "Mechanical ventilation ducts map clean pathways adjacent to principal service shafts."
+            "Plan analysis unavailable. Please enter the floor area, number of floors, and building type manually."
           ]
         });
       } finally {
@@ -430,7 +452,7 @@ export default function PropertyManagement({
                       {analysisSteps[analysisStep]}
                     </h4>
                     <p className="text-[10px] text-slate-400 mt-1 max-w-xs leading-relaxed mx-auto font-light">
-                      Gemini is scanning plan coordinates, verifying dimensions, and matching elements with standard structural templates.
+                      Analyzing plan dimensions, verifying layout, and matching elements with structural templates.
                     </p>
                   </div>
                   
@@ -468,7 +490,7 @@ export default function PropertyManagement({
                       <div>
                         <span className="text-[10px] text-slate-400 font-medium">Confidence Level</span>
                         <span className="font-bold text-emerald-600 dark:text-emerald-400 block flex items-center gap-1">
-                          <Check className="w-3.5 h-3.5" /> High (94%)
+                          <Check className="w-3.5 h-3.5" /> Analysis Complete
                         </span>
                       </div>
                     </div>
@@ -491,7 +513,7 @@ export default function PropertyManagement({
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white dark:bg-slate-950 p-4 border border-slate-150 dark:border-slate-800 rounded-xl">
                       <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-450 uppercase tracking-wider block">Floor Area (SQM)</label>
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Floor Area (SQM)</label>
                         <input
                           type="number"
                           value={editArea}
@@ -500,7 +522,7 @@ export default function PropertyManagement({
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-450 uppercase tracking-wider block">Number of Floors</label>
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Number of Floors</label>
                         <input
                           type="number"
                           value={editFloors}
@@ -509,7 +531,7 @@ export default function PropertyManagement({
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-450 uppercase tracking-wider block">Building Type</label>
+                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Building Type</label>
                         <select
                           value={editType}
                           onChange={e => setEditType(e.target.value)}
@@ -540,7 +562,7 @@ export default function PropertyManagement({
                   <div className="flex gap-3 justify-end pt-1">
                     <button
                       onClick={() => setAnalyzedResult(null)}
-                      className="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-[10px] uppercase tracking-wider font-bold text-slate-600 dark:text-slate-350 cursor-pointer"
+                      className="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-[10px] uppercase tracking-wider font-bold text-slate-600 dark:text-slate-400 cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -696,7 +718,7 @@ export default function PropertyManagement({
                   <div className="flex gap-2.5 items-start">
                     <span className="px-1.5 py-0.5 text-[9px] font-mono font-black rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">OPTIMIZED</span>
                     <p className="text-xs text-slate-600 dark:text-slate-300 font-light leading-relaxed">
-                      This property has high insulation ratings, which compresses HVAC utility forecasts by <strong>14.5%</strong>. Upfront waterproofing assemblies completed during structural outlays protect concrete foundations against premature lifecycle depletion. Upload a blueprint to run active AI analysis.
+                      Upload a blueprint to run AI-assisted analysis on this property. Specifications can also be entered manually below.
                     </p>
                   </div>
                 )}
@@ -725,32 +747,32 @@ export default function PropertyManagement({
 
             <form onSubmit={handleCreateProject} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Project Name</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Project Name</label>
                 <input
                   type="text"
                   required
                   value={newProject.name}
                   onChange={e => setNewProject({...newProject, name: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   placeholder="e.g. Westlands Tower B"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Physical Location</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Physical Location</label>
                 <input
                   type="text"
                   required
                   value={newProject.location}
                   onChange={e => setNewProject({...newProject, location: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   placeholder="e.g. Westlands, Nairobi"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">County *</label>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">County *</label>
                   <select
                     value={newProject.county}
                     onChange={e => {
@@ -758,17 +780,17 @@ export default function PropertyManagement({
                       const cities = countyCities[county] || [];
                       setNewProject({...newProject, county, city: cities[0] || ""});
                     }}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
                   >
                     {countyList.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">City/Town *</label>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">City/Town *</label>
                   <select
                     value={newProject.city}
                     onChange={e => setNewProject({...newProject, city: e.target.value})}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 cursor-pointer"
                   >
                     {(countyCities[newProject.county] || []).map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -777,41 +799,41 @@ export default function PropertyManagement({
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Floors</label>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Floors</label>
                   <input
                     type="number"
                     value={newProject.floors}
                     onChange={e => setNewProject({...newProject, floors: parseInt(e.target.value) || 1})}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Total Units</label>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Units</label>
                   <input
                     type="number"
                     value={newProject.units}
                     onChange={e => setNewProject({...newProject, units: parseInt(e.target.value) || 1})}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Estimated Construction CAPEX (KSh)</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Estimated Construction CAPEX (KSh)</label>
                 <input
                   type="number"
                   value={newProject.capexBudget}
                   onChange={e => setNewProject({...newProject, capexBudget: parseFloat(e.target.value) || 0})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 font-mono font-bold text-emerald-600"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 font-mono font-bold text-emerald-600"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Project Description</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Project Description</label>
                 <textarea
                   value={newProject.description}
                   onChange={e => setNewProject({...newProject, description: e.target.value})}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 h-20"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 h-20"
                   placeholder="Summarize structural scope..."
                 />
               </div>

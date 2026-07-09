@@ -94,7 +94,7 @@ export interface AIInsight {
 }
 
 export type UserRole =
-  | "Developer"
+  | "Administrator"
   | "Super Admin"
   | "Property Manager"
   | "Finance Officer"
@@ -103,7 +103,8 @@ export type UserRole =
   | "Auditor"
   | "Executive"
   | "Facility Manager"
-  | "Maintenance Engineer";
+  | "Maintenance Engineer"
+  | "Building Owner";
 
 export interface User {
   id: string;
@@ -283,6 +284,7 @@ export type ActiveTabType =
   | "dashboard"
   | "admin-dashboard"
   | "facility-dashboard"
+  | "owner-dashboard"
   | "properties-mgmt"
   | "cost-estimation"
   | "vendors"
@@ -334,9 +336,11 @@ export interface SystemSettings {
   auditLogs: AuditLog[];
 }
 
-export const ADMIN_ROLES: UserRole[] = ["Developer", "Super Admin", "Executive", "Finance Officer", "Auditor"];
+export const ADMIN_ROLES: UserRole[] = ["Administrator", "Super Admin", "Executive", "Finance Officer", "Auditor"];
 
 export const FM_ROLES: UserRole[] = ["Facility Manager", "Maintenance Engineer", "Property Manager"];
+
+export const OWNER_ROLES: UserRole[] = ["Building Owner"];
 
 export function isAdminRole(role: string): boolean {
   return ADMIN_ROLES.includes(role as UserRole);
@@ -344,4 +348,8 @@ export function isAdminRole(role: string): boolean {
 
 export function isFacilityManagerRole(role: string): boolean {
   return FM_ROLES.includes(role as UserRole);
+}
+
+export function isOwnerRole(role: string): boolean {
+  return OWNER_ROLES.includes(role as UserRole);
 }

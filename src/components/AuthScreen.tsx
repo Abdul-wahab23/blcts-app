@@ -12,7 +12,8 @@ import {
   KeyRound,
   Eye,
   EyeOff,
-  Sparkles
+  Sparkles,
+  Crown
 } from "lucide-react";
 import { User } from "../types";
 import { motion, AnimatePresence } from "motion/react";
@@ -28,32 +29,39 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<"Developer" | "Facility Manager">("Developer");
+  const [role, setRole] = useState<"Facility Manager" | "Building Owner">("Facility Manager");
   const [organization, setOrganization] = useState("Wandera Investments Ltd");
   
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   // Simulation states
-  const [authStatus, setAuthStatus] = useState<"idle" | "verifying" | "syncing_sensor" | "finalizing" | "success">("idle");
+  const [authStatus, setAuthStatus] = useState<"idle" | "verifying" | "finalizing" | "success">("idle");
   const [syncMessage, setSyncMessage] = useState("");
  
-  const handleQuickLogin = (preset: "admin" | "manager") => {
+  const handleQuickLogin = (preset: "admin" | "manager" | "owner") => {
     setError(null);
     if (preset === "admin") {
-      setEmail("wanderaabdulwahab4@gmail.com");
-      setPassword("executivePass123");
+      setEmail("admin@blcts.com");
+      setPassword("adminPass123");
       setName("Abdulwahab Wandera");
-      setRole("Developer");
+      setRole("Facility Manager");
       setOrganization("Wandera Investments Ltd");
       setPhone("+254 712 345 678");
     } else if (preset === "manager") {
-      setEmail("manager.thika@blcts.com");
+      setEmail("manager@blcts.com");
       setPassword("managerPass99");
       setName("Kamau Njoroge");
       setRole("Facility Manager");
       setOrganization("Thika Block Management");
       setPhone("+254 722 987 654");
+    } else if (preset === "owner") {
+      setEmail("owner@blcts.com");
+      setPassword("ownerPass77");
+      setName("Aisha Mohamed");
+      setRole("Building Owner");
+      setOrganization("Mohamed Development Group");
+      setPhone("+254 733 123 456");
     }
     // Select login tab automatically
     setActiveTab("login");
@@ -61,38 +69,64 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
 
   // Initialize standard user accounts with SHA-256 secure hashes on mount
   React.useEffect(() => {
+    const defaultUsers = [
+      {
+        id: "user-admin",
+        email: "admin@blcts.com",
+        name: "Abdulwahab Wandera",
+        role: "Administrator",
+        organization: "Wandera Investments Ltd",
+        phone: "+254 712 345 678",
+        passwordHash: "4b971cafd7903d148bda8f8aa7faa57b769cded513ecb31e124d1e010a80555f" // SHA-256 of "adminPass123"
+      },
+      {
+        id: "user-manager",
+        email: "manager@blcts.com",
+        name: "Kamau Njoroge",
+        role: "Facility Manager",
+        organization: "Thika Block Management",
+        phone: "+254 722 987 654",
+        passwordHash: "276cbf1e0dd8b5d1bd515780206dfbf0257d379494feefee8503f2d85e9a7c2a" // SHA-256 of "managerPass99"
+      },
+      {
+        id: "user-owner",
+        email: "owner@blcts.com",
+        name: "Aisha Mohamed",
+        role: "Building Owner",
+        organization: "Mohamed Development Group",
+        phone: "+254 733 123 456",
+        passwordHash: "29cf5c7634755973d2646d902a6a46ffd64d5cc3d3d91096d80811a2beee7b15" // SHA-256 of "ownerPass77"
+      },
+      {
+        id: "user-engineer",
+        email: "lead.engineer@davis-shirtliff.co.ke",
+        name: "Jane Atieno",
+        role: "Maintenance Engineer",
+        organization: "Davis & Shirtliff Tech",
+        phone: "+254 733 445 566",
+        passwordHash: "02f0cdcbe300c5a93067cecb66b1aa7a78834a5af425c02f73b636f7745433fc" // SHA-256 of "engineerPass22"
+      }
+    ];
     const stored = localStorage.getItem("blcts-users");
     if (!stored) {
-      const defaultUsers = [
-        {
-          id: "user-admin",
-          email: "wanderaabdulwahab4@gmail.com",
-          name: "Abdulwahab Wandera",
-          role: "Developer",
-          organization: "Wandera Investments Ltd",
-          phone: "+254 712 345 678",
-          passwordHash: "54b79259254eaed6593410bd63c089de0d797d2b4f020683060a21bbad6da5ed" // SHA-256 of "executivePass123"
-        },
-        {
-          id: "user-manager",
-          email: "manager.thika@blcts.com",
-          name: "Kamau Njoroge",
-          role: "Facility Manager",
-          organization: "Thika Block Management",
-          phone: "+254 722 987 654",
-          passwordHash: "276cbf1e0dd8b5d1bd515780206dfbf0257d379494feefee8503f2d85e9a7c2a" // SHA-256 of "managerPass99"
-        },
-        {
-          id: "user-engineer",
-          email: "lead.engineer@davis-shirtliff.co.ke",
-          name: "Jane Atieno",
-          role: "Maintenance Engineer",
-          organization: "Davis & Shirtliff Tech",
-          phone: "+254 733 445 566",
-          passwordHash: "02f0cdcbe300c5a93067cecb66b1aa7a78834a5af425c02f73b636f7745433fc" // SHA-256 of "engineerPass22"
-        }
-      ];
       localStorage.setItem("blcts-users", JSON.stringify(defaultUsers));
+    } else {
+      // Merge: ensure demo accounts always exist with correct credentials
+      try {
+        const existing = JSON.parse(stored);
+        const merged = [...existing];
+        for (const demo of defaultUsers) {
+          const idx = merged.findIndex((u: any) => u.id === demo.id || u.email === demo.email);
+          if (idx >= 0) {
+            merged[idx] = { ...merged[idx], ...demo };
+          } else {
+            merged.push(demo);
+          }
+        }
+        localStorage.setItem("blcts-users", JSON.stringify(merged));
+      } catch {
+        localStorage.setItem("blcts-users", JSON.stringify(defaultUsers));
+      }
     }
   }, []);
 
@@ -106,25 +140,20 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
 
   const executeAuthSimulation = (userPayload: User) => {
     setAuthStatus("verifying");
-    setSyncMessage("Authenticating credentials & establishing session...");
+    setSyncMessage("Authenticating credentials...");
     
     setTimeout(() => {
-      setAuthStatus("syncing_sensor");
-      setSyncMessage("Synchronizing local building IoT sensors and thermal logs...");
-    }, 1200);
-
-    setTimeout(() => {
       setAuthStatus("finalizing");
-      setSyncMessage("Establishing secure Daraja M-PESA sandbox gateway...");
-    }, 2400);
+      setSyncMessage("Preparing your dashboard...");
+    }, 600);
 
     setTimeout(() => {
       setAuthStatus("success");
-      setSyncMessage("Verification complete. Redirecting you to the asset deck...");
+      setSyncMessage("Welcome. Redirecting to your dashboard...");
       setTimeout(() => {
         onLoginSuccess(userPayload);
-      }, 700);
-    }, 3500);
+      }, 400);
+    }, 1200);
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -132,7 +161,13 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
     setError(null);
 
     if (!email || !password) {
-      setError("Please fill in all standard credential fields.");
+      setError("Please enter your email and password.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
       return;
     }
 
@@ -146,7 +181,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
       );
 
       if (!matchedUser) {
-        setError("Account not found. Please register as a Developer or Facility Manager.");
+        setError("Account not found. Please register or contact your administrator.");
         return;
       }
 
@@ -179,8 +214,24 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
       return;
     }
 
-    if (password.length < 6) {
-      setError("For proper security, passwords require at least 6 characters.");
+    const signupEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!signupEmailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (name.trim().length < 2) {
+      setError("Please enter your full name (at least 2 characters).");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Passwords require at least 8 characters for security.");
+      return;
+    }
+
+    if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+      setError("Passwords must include at least one uppercase letter and one number.");
       return;
     }
 
@@ -228,7 +279,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
 
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-200 ${
-      isDarkMode ? "bg-slate-950 text-slate-105" : "bg-slate-50 text-slate-900"
+      isDarkMode ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
     }`}>
       {/* Dynamic Background visual ornaments */}
       <div className="absolute top-[-25%] left-[-15%] w-[60%] h-[70%] rounded-full bg-gradient-to-br from-emerald-500/10 to-transparent blur-[120px] pointer-events-none" />
@@ -258,7 +309,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
               Maximize Asset Integrity, Eliminate First-Cost Bias
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
-              Nairobi&apos;s leading platform optimizing commercial building structures. Forecast 25-Year cumulative material wear, track active solar utility yields, and streamline mobile contractor payouts securely.
+              A comprehensive platform for tracking building lifecycle costs. Forecast long-term material wear, compute total cost of ownership, and leverage AI-enhanced analytics for smarter financial decisions.
             </p>
           </div>
 
@@ -270,10 +321,10 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
               </div>
               <div>
                 <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-display">
-                  Live IoT Telemetry Loop
+                  AI-Enhanced Analytics
                 </h4>
-                <p className="text-[11px] text-slate-450 dark:text-slate-500 mt-0.5 leading-snug">
-                  Continuously streams temperature, power factor, pressure anomalies, and vibration offsets.
+                <p className="text-[11px] text-slate-500 dark:text-slate-500 mt-0.5 leading-snug">
+                  Predicts maintenance costs, detects budget anomalies, and recommends preventive actions.
                 </p>
               </div>
             </div>
@@ -286,8 +337,8 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                 <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-display">
                   TCO Forecast Engine
                 </h4>
-                <p className="text-[11px] text-slate-450 dark:text-slate-500 mt-0.5 leading-snug">
-                  Visualizes actual cumulative outlays across a 30-year operational horizon in beautiful charts.
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                  Computes total cost of ownership across the full building lifecycle with regional pricing.
                 </p>
               </div>
             </div>
@@ -298,10 +349,10 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
               </div>
               <div>
                 <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-display">
-                  Safaricom Daraja API Sync
+                  Secure Role-Based Access
                 </h4>
-                <p className="text-[11px] text-slate-450 dark:text-slate-500 mt-0.5 leading-snug">
-                  Execute instant contractor M-Pesa payouts directly inside the maintenance log hub.
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                  Separate dashboards and permissions for administrators, facility managers, and building owners.
                 </p>
               </div>
             </div>
@@ -310,7 +361,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
           {/* Quick-select profiles banner info */}
           <div className="p-3 bg-slate-100 dark:bg-slate-900/60 border border-slate-200/40 dark:border-slate-800/80 rounded-2xl flex items-center gap-2 text-xs">
             <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span className="text-slate-550 dark:text-slate-400 leading-normal">
+            <span className="text-slate-600 dark:text-slate-400 leading-normal">
               Select a preset account on the right to quickly access the platform.
             </span>
           </div>
@@ -346,7 +397,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                     className={`flex-1 py-2 text-xs rounded-lg transition-all cursor-pointer ${
                       activeTab === "login"
                         ? "bg-white dark:bg-slate-800 text-slate-950 dark:text-emerald-400 shadow-sm"
-                        : "text-slate-500 hover:text-slate-850 dark:text-slate-400 dark:hover:text-slate-200"
+                        : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
                     }`}
                   >
                     Log In
@@ -356,7 +407,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                     className={`flex-1 py-2 text-xs rounded-lg transition-all cursor-pointer ${
                       activeTab === "signup"
                         ? "bg-white dark:bg-slate-800 text-slate-950 dark:text-emerald-400 shadow-sm"
-                        : "text-slate-500 hover:text-slate-850 dark:text-slate-400 dark:hover:text-slate-200"
+                        : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
                     }`}
                   >
                     Register Account
@@ -376,7 +427,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                 </div>
 
                 {error && (
-                  <div className="p-3 bg-red-50 dark:bg-rose-950/20 border border-red-200 dark:border-rose-900/40 text-red-800 dark:text-rose-350 rounded-xl text-xs font-semibold flex items-center gap-2 animate-bounce">
+                  <div className="p-3 bg-red-50 dark:bg-rose-950/20 border border-red-200 dark:border-rose-900/40 text-red-800 dark:text-rose-300 rounded-xl text-xs font-semibold flex items-center gap-2">
                     <span className="shrink-0">•</span>
                     <span>{error}</span>
                   </div>
@@ -387,7 +438,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                   
                   {activeTab === "signup" && (
                     <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-450 dark:text-slate-505 uppercase tracking-wider block font-display">
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
                         Full Name *
                       </label>
                       <div className="relative">
@@ -405,7 +456,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                   )}
 
                   <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold text-slate-450 dark:text-slate-550 uppercase tracking-wider block font-display">
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
                       Work Email *
                     </label>
                     <div className="relative">
@@ -424,7 +475,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                   {/* Standard details for user customization */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-450 dark:text-slate-550 uppercase tracking-wider block font-display">
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
                         System Role Profile *
                       </label>
                       <div className="relative">
@@ -433,16 +484,19 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                           onChange={(e) => setRole(e.target.value as any)}
                           className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2 px-3 pl-10 text-xs focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-slate-100 caret-slate-900 dark:caret-slate-100 font-semibold cursor-pointer appearance-none"
                         >
-                          <option value="Developer">Developer</option>
                           <option value="Facility Manager">Facility Manager</option>
+                          <option value="Building Owner">Building Owner / Developer</option>
                         </select>
                         <Briefcase className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
                       </div>
+                      <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">
+                        Administrator accounts are created by an existing administrator. Contact your system administrator if you need admin access.
+                      </p>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-450 dark:text-slate-550 uppercase tracking-wider block font-display">
-                        Mobile Money Contact (KES Draw)
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
+                        Contact Number
                       </label>
                       <div className="relative">
                         <input
@@ -458,7 +512,7 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold text-slate-450 dark:text-slate-550 uppercase tracking-wider block font-display">
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
                       Corporate Organization
                     </label>
                     <input
@@ -472,13 +526,13 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
 
                   <div className="space-y-1.5">
                     <div className="flex justify-between">
-                      <label className="block text-[10px] font-bold text-slate-450 dark:text-slate-550 uppercase tracking-wider block font-display">
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
                         Secret Password *
                       </label>
                       {activeTab === "login" && (
-                        <button type="button" className="text-[10px] text-emerald-500 dark:text-emerald-400 font-bold hover:underline">
-                          Forgot passcode?
-                        </button>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                          Use a demo account for quick access
+                        </span>
                       )}
                     </div>
                     <div className="relative">
@@ -521,9 +575,9 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                       onClick={() => handleQuickLogin("admin")}
                       className="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 bg-slate-50/50 dark:bg-slate-950/40 p-2.5 rounded-xl text-left transition-all hover:bg-white dark:hover:bg-slate-900 group cursor-pointer"
                     >
-                      <div className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Admin Executive</div>
+                      <div className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Administrator</div>
                       <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-emerald-400 mt-0.5">System Administrator</div>
-                      <div className="text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5">admin@blcts.io</div>
+                      <div className="text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5">admin@blcts.com</div>
                     </button>
 
                     <button
@@ -532,8 +586,18 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                       className="border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 bg-slate-50/50 dark:bg-slate-950/40 p-2.5 rounded-xl text-left transition-all hover:bg-white dark:hover:bg-slate-900 group cursor-pointer"
                     >
                       <div className="text-[9px] font-bold text-sky-400 uppercase tracking-widest">Kamau Njoroge</div>
-                      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-sky-450 mt-0.5">Facility Manager</div>
-                      <div className="text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5">manager.thika@blcts.com</div>
+                      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-sky-400 mt-0.5">Facility Manager</div>
+                      <div className="text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5">manager@blcts.com</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleQuickLogin("owner")}
+                      className="border border-slate-200 dark:border-slate-800 hover:border-amber-500/50 bg-slate-50/50 dark:bg-slate-950/40 p-2.5 rounded-xl text-left transition-all hover:bg-white dark:hover:bg-slate-900 group cursor-pointer sm:col-span-2"
+                    >
+                      <div className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Building Owner</div>
+                      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-amber-400 mt-0.5">Aisha Mohamed</div>
+                      <div className="text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5">owner@blcts.com</div>
                     </button>
                   </div>
                 </div>
@@ -574,9 +638,8 @@ export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenPro
                     className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300"
                     style={{ 
                       width: 
-                        authStatus === "verifying" ? "33%" : 
-                        authStatus === "syncing_sensor" ? "66%" : 
-                        authStatus === "finalizing" ? "90%" : "100%" 
+                        authStatus === "verifying" ? "40%" : 
+                        authStatus === "finalizing" ? "85%" : "100%" 
                     }}
                   />
                 </div>
