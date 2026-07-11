@@ -35,7 +35,7 @@ export default function AdminDashboard({
     })();
     const activeProjects = activeProperties.length;
     const buildingsRegistered = activeProperties.length;
-    const pendingMaintenance = maintenanceTasks.filter(t => t.status === "Scheduled" || t.status === "In-Progress").length;
+    const pendingMaintenance = maintenanceTasks.filter(t => t.status === "Assigned" || t.status === "In-Progress").length;
     const totalConstructionCost = activeProperties.reduce((sum, p) => sum + (p.initialConstructionCost || p.capexBudget || 0), 0);
     const totalLifecycleCost = activeProperties.reduce((sum, p) => {
       return sum + (p.initialConstructionCost || 0) + (p.materialCost || 0) + (p.labourCost || 0) +
@@ -160,7 +160,7 @@ export default function AdminDashboard({
             Maintenance Alerts
           </h3>
           <div className="space-y-2">
-            {maintenanceTasks.filter(t => t.status === "Scheduled" || t.status === "In-Progress").slice(0, 4).map(task => {
+            {maintenanceTasks.filter(t => t.status === "Assigned" || t.status === "In-Progress").slice(0, 4).map(task => {
               const prop = activeProperties.find(p => p.id === task.propertyId);
               return (
                 <div key={task.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-100 dark:border-slate-800">
@@ -169,12 +169,12 @@ export default function AdminDashboard({
                     <span className="text-[10px] text-slate-400 block truncate">{prop?.name || "Unknown"}</span>
                   </div>
                   <span className={`text-[9px] font-bold px-2 py-0.5 rounded shrink-0 ml-2 ${
-                    task.status === "Scheduled" ? "bg-sky-950 text-sky-400" : "bg-amber-950 text-amber-400"
+                    task.status === "Assigned" ? "bg-sky-950 text-sky-400" : "bg-amber-950 text-amber-400"
                   }`}>{task.status}</span>
                 </div>
               );
             })}
-            {maintenanceTasks.filter(t => t.status === "Scheduled" || t.status === "In-Progress").length === 0 && (
+            {maintenanceTasks.filter(t => t.status === "Assigned" || t.status === "In-Progress").length === 0 && (
               <div className="text-center py-6 text-[10px] text-slate-400">No pending maintenance tasks</div>
             )}
           </div>

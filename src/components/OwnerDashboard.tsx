@@ -90,9 +90,9 @@ export default function OwnerDashboard({
     const avgAiConfidence = predictions.length > 0
       ? Math.round(predictions.reduce((s, p) => s + p.confidenceScore, 0) / predictions.length)
       : 0;
-    const totalMaintenanceCost = maintenanceTasks.reduce((s, t) => s + t.amount, 0);
-    const paidMaintenance = maintenanceTasks.filter(t => t.status === "Paid" || t.status === "Completed").length;
-    const pendingMaintenance = maintenanceTasks.filter(t => t.status === "Scheduled" || t.status === "In-Progress").length;
+    const totalMaintenanceCost = maintenanceTasks.reduce((s, t) => s + t.estimatedCost, 0);
+    const paidMaintenance = maintenanceTasks.filter(t => t.status === "Verified" || t.status === "Completed").length;
+    const pendingMaintenance = maintenanceTasks.filter(t => t.status === "Assigned" || t.status === "In-Progress").length;
     const avgAssetCondition = assets.length > 0
       ? Math.round((assets.filter(a => a.currentCondition === "Good" || a.currentCondition === "New").length / assets.length) * 100)
       : 0;
@@ -143,12 +143,12 @@ export default function OwnerDashboard({
           }))
           .slice(-6)
       : [
-          { month: "Jan", amount: capex * 0.3, phase: "Construction" },
-          { month: "Feb", amount: capex * 0.2, phase: "Construction" },
-          { month: "Mar", amount: opex * 0.15, phase: "Operational" },
-          { month: "Apr", amount: opex * 0.2, phase: "Maintenance" },
-          { month: "May", amount: opex * 0.1, phase: "Operational" },
-          { month: "Jun", amount: opex * 0.15, phase: "Maintenance" },
+          { month: "Jan", amount: capex * 0.3, phase: "Construction" as const },
+          { month: "Feb", amount: capex * 0.2, phase: "Construction" as const },
+          { month: "Mar", amount: opex * 0.15, phase: "Operational" as const },
+          { month: "Apr", amount: opex * 0.2, phase: "Maintenance" as const },
+          { month: "May", amount: opex * 0.1, phase: "Operational" as const },
+          { month: "Jun", amount: opex * 0.15, phase: "Maintenance" as const },
         ];
 
     return {
@@ -857,12 +857,12 @@ export default function OwnerDashboard({
                         <div key={task.id} className="flex items-center justify-between border border-slate-200 dark:border-slate-800 rounded-lg p-2.5">
                           <div>
                             <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{task.component}</p>
-                            <p className="text-[10px] text-slate-400">{task.contractor} · {task.targetDate}</p>
+                            <p className="text-[10px] text-slate-400">{task.vendor} · {task.targetDate}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[11px] font-bold text-slate-900 dark:text-white">{formatKSh(task.amount)}</p>
+                            <p className="text-[11px] font-bold text-slate-900 dark:text-white">{formatKSh(task.estimatedCost)}</p>
                             <span className={`text-[8px] font-bold uppercase ${
-                              task.status === "Paid" || task.status === "Completed" ? "text-emerald-500" :
+                              task.status === "Verified" || task.status === "Completed" ? "text-emerald-500" :
                               task.status === "Overdue" ? "text-rose-500" : "text-amber-500"
                             }`}>{task.status}</span>
                           </div>

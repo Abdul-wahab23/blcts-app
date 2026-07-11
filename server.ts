@@ -178,7 +178,7 @@ function ensureDatabase() {
       id: "user-admin",
       email: "wanderaabdulwahab4@gmail.com",
       name: "Abdulwahab Wandera",
-      role: "Developer",
+      role: "Administrator",
       organization: "Wandera Investments Ltd",
       phone: "+254 712 345 678",
       passwordHash: "54b79259254eaed6593410bd63c089de0d797d2b4f020683060a21bbad6da5ed" // hash of "executivePass123"

@@ -215,7 +215,7 @@ export default function Report({
   }, [costEntries]);
 
   const maintenanceSummary = useMemo(() => {
-    const total = maintenanceTasks.reduce((s, t) => s + (t.amount || 0), 0);
+    const total = maintenanceTasks.reduce((s, t) => s + (t.estimatedCost || 0), 0);
     const byStatus: Record<string, number> = {};
     maintenanceTasks.forEach((t) => {
       byStatus[t.status] = (byStatus[t.status] ?? 0) + 1;
@@ -316,7 +316,7 @@ export default function Report({
     add(["MAINTENANCE TASKS"]);
     add(["Component", "Status", "Target Date", "Contractor", "Amount"]);
     maintenanceTasks.forEach((t) =>
-      add([esc(t.component), esc(t.status), esc(t.targetDate), esc(t.contractor), t.amount]),
+      add([esc(t.component), esc(t.status), esc(t.targetDate), esc(t.vendor), t.estimatedCost]),
     );
     add([]);
 
@@ -418,7 +418,7 @@ export default function Report({
       const maintRows = maintenanceTasks
         .map(
           (t) =>
-            `<tr><td>${t.component}</td><td>${t.status}</td><td>${t.targetDate}</td><td style="text-align:right">${formatKShFull(t.amount)}</td></tr>`,
+            `<tr><td>${t.component}</td><td>${t.status}</td><td>${t.targetDate}</td><td style="text-align:right">${formatKShFull(t.estimatedCost)}</td></tr>`,
         )
         .join("");
 

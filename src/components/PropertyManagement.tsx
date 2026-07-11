@@ -75,6 +75,9 @@ export default function PropertyManagement({
     floors: number;
     buildingType: string;
     observations: string[];
+    confidence?: number;
+    source?: string;
+    isFallback?: boolean;
   } | null>(null);
 
   const [editArea, setEditArea] = useState<number>(0);
