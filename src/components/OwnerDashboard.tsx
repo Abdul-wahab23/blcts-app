@@ -8,6 +8,7 @@ import {
 import { Property, CostEntry, MaintenanceTask, AIPrediction, Anomaly, ComplianceItem, SustainabilityMetric, Asset, AppNotification, ActiveTabType, User } from "../types";
 import CountUp from "./CountUp";
 import { staggerContainer, fadeInUp, cardHover } from "../utils/animations";
+import { WorkflowChecklist, ProgressBar } from "./WorkflowComponents";
 
 interface OwnerDashboardProps {
   properties: Property[];
@@ -375,6 +376,23 @@ export default function OwnerDashboard({
                 );
               })}
             </div>
+
+            {/* Owner Workflow Checklist */}
+            <motion.div variants={fadeInUp} className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <WorkflowChecklist
+                items={[
+                  { label: "Register Building", done: properties.length > 0, onClick: () => setActiveTab("properties-mgmt") },
+                  { label: "Upload Drawings", done: properties.some(p => p.blueprintUrl), onClick: () => setActiveTab("properties-mgmt") },
+                  { label: "Review Cost Estimate", done: properties.some(p => (p.initialConstructionCost || 0) > 0), onClick: () => setActiveTab("cost-estimation") },
+                  { label: "Approve Budget", done: properties.some(p => p.status === "Under Construction" || p.status === "Active"), onClick: () => setActiveTab("cost-estimation") },
+                  { label: "Monitor Construction", done: properties.some(p => p.status === "Under Construction"), onClick: () => setActiveTab("properties-mgmt") },
+                  { label: "Monitor Maintenance", done: properties.some(p => p.status === "Active"), onClick: () => setActiveTab("maintenance") },
+                  { label: "View Lifecycle Costs", done: properties.some(p => (p.totalLifecycleCostRecord || 0) > 0), onClick: () => setActiveTab("cost-estimation") },
+                  { label: "Review AI Insights", done: predictions.length > 0, onClick: () => setActiveTab("ai-predictions") },
+                  { label: "Download Reports", done: true, onClick: () => setActiveTab("reports") },
+                ]}
+              />
+            </motion.div>
 
             {/* Building Lifecycle Timeline */}
             <motion.div variants={fadeInUp} className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">

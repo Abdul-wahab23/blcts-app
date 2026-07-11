@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { Property, MaintenanceTask, Asset, ComplianceItem, SustainabilityMetric, AIPrediction, Anomaly, AppNotification, User, ActiveTabType } from "../types";
 import { staggerContainer, fadeInUp, cardHover } from "../utils/animations";
 import CountUp from "./CountUp";
+import { WorkflowStepper } from "./WorkflowComponents";
 
 interface FacilityDashboardProps {
   selectedProperty: Property;

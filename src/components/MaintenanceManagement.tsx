@@ -11,6 +11,7 @@ import {
   Cell,
 } from "recharts";
 import { MaintenanceTask, MaintenanceStatus, MaintenancePriority, MaintenanceCategory, Asset, UserRole } from "../types";
+import { WorkflowStepper, StatusBadge } from "./WorkflowComponents";
 
 interface MaintenanceManagementProps {
   maintenanceRecords: MaintenanceTask[];
@@ -325,6 +326,19 @@ export default function MaintenanceManagement({
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Track preventive, corrective, predictive, and emergency maintenance activities across the property portfolio.
           </p>
+          <div className="mt-3">
+            <WorkflowStepper
+              steps={[
+                { label: "Need Identified", status: "completed" },
+                { label: "Task Created", status: "completed" },
+                { label: "Assigned", status: "pending" },
+                { label: "In Progress", status: "pending" },
+                { label: "Completed", status: "pending" },
+                { label: "Verified", status: "pending" },
+                { label: "Cost Recorded", status: "pending" },
+              ]}
+            />
+          </div>
         </div>
         {canEdit && (
           <button

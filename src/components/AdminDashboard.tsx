@@ -5,6 +5,7 @@ import { Property, CostEntry, MaintenanceTask, Vendor, Asset, ComplianceItem, AI
 import { getAllCounties, compareCountyPrices } from "../utils/pricingEngine";
 import { staggerContainer, fadeInUp, cardHover } from "../utils/animations";
 import CountUp from "./CountUp";
+import { WorkflowStepper } from "./WorkflowComponents";
 
 interface AdminDashboardProps {
   properties: Property[];
@@ -71,6 +72,20 @@ export default function AdminDashboard({
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Platform-wide control center. Full visibility across all projects, users, and system health.
           </p>
+          <div className="mt-3">
+            <WorkflowStepper
+              steps={[
+                { label: "Create Users", status: "completed" },
+                { label: "Register Buildings", status: "completed" },
+                { label: "Assign Managers", status: "completed" },
+                { label: "Configure Pricing", status: "active" },
+                { label: "Configure AI", status: "pending" },
+                { label: "Monitor System", status: "pending" },
+                { label: "Audit Logs", status: "pending" },
+                { label: "Reports", status: "pending" },
+              ]}
+            />
+          </div>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800/60 px-4 py-2 border border-slate-100 dark:border-slate-800 rounded-xl shrink-0">
           <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider block">Logged in as</span>

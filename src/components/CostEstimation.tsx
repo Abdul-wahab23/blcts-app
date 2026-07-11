@@ -3,6 +3,7 @@ import { Cpu, Sparkles, Building2, Layers, RefreshCw, FileSliders as Sliders, Li
 import { Property } from "../types";
 import { getAllCounties, getSafetyMarginFromStorage, calculateQSEstimate, formatKSh, getCostConfigFromStorage, setCostConfigToStorage, CostEstimateConfig, DEFAULT_CONFIG, QSEstimateResult } from "../utils/pricingEngine";
 import { countyCities } from "../data/regionalPricing";
+import { WorkflowStepper, NextStepGuide } from "./WorkflowComponents";
 
 interface CostEstimationProps {
   selectedProperty: Property;
@@ -115,6 +116,26 @@ export default function CostEstimation({ selectedProperty, triggerToast }: CostE
             Quantity-surveying-based cost estimation using regional pricing, construction standards, professional fees, statutory costs, and contingency.
           </p>
         </div>
+        <div className="flex items-center gap-3">
+          <WorkflowStepper
+            steps={[
+              { label: "Project Details", status: "completed" },
+              { label: "Drawings", status: "completed" },
+              { label: "GFA", status: "completed" },
+              { label: "Cost/m²", status: breakdown ? "completed" : "active" },
+              { label: "Base Cost", status: breakdown ? "completed" : "pending" },
+              { label: "Fees", status: breakdown ? "completed" : "pending" },
+              { label: "Total", status: breakdown ? "completed" : "pending" },
+              { label: "Lifecycle", status: breakdown ? "completed" : "pending" },
+              { label: "AI", status: "pending" },
+              { label: "Reports", status: "pending" },
+            ]}
+          />
+        </div>
+      </div>
+
+      {/* QUICK ACTIONS BAR */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowConfig(!showConfig)}
@@ -538,6 +559,14 @@ export default function CostEstimation({ selectedProperty, triggerToast }: CostE
                   <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1">✓ VAT Included</span>
                 </div>
               </div>
+
+              {breakdown && (
+                <NextStepGuide
+                  currentStep="Cost Estimate Generated"
+                  nextStep="AI Recommendations & Reports"
+                  nextLabel="View AI Insights"
+                />
+              )}
 
             </div>
           ) : (
