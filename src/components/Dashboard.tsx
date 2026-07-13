@@ -200,7 +200,7 @@ function AdminDashboard({ user, projects, onNavigate }: Props) {
             icon={<Settings className="w-5 h-5" />}
             title="System Settings"
             description="Configure application-wide settings and preferences."
-            onClick={() => onNavigate('settings')}
+            onClick={() => onNavigate('system')}
             color="amber"
           />
         </div>
@@ -477,7 +477,7 @@ function FacilityManagerDashboard({ user, projects, onNavigate }: Props) {
             icon={<Building2 className="w-5 h-5" />}
             title="View Assets"
             description="Browse building components and their maintenance histories."
-            onClick={() => onNavigate('assets')}
+            onClick={() => onNavigate('maintenance')}
             color="blue"
           />
           <ActionCard

@@ -239,7 +239,7 @@ export default function VendorCenter({ vendors, materials, triggerToast }: Vendo
       const updated: Material = {
         ...materialDraft,
         historicalPrices: [
-          ...materialDraft.historicalPrices,
+          ...(materialDraft.historicalPrices ?? []),
           { date: today, price: materialDraft.currentPrice },
         ].slice(-24),
       };
@@ -594,11 +594,11 @@ export default function VendorCenter({ vendors, materials, triggerToast }: Vendo
                             <Truck className="w-3.5 h-3.5" />
                             Delivery History
                           </div>
-                          {v.deliveryHistory.length === 0 ? (
+                          {(v.deliveryHistory || []).length === 0 ? (
                             <p className="text-[11px] text-slate-400 italic">No delivery records.</p>
                           ) : (
                             <div className="space-y-1.5">
-                              {v.deliveryHistory.map((d, i) => (
+                              {(v.deliveryHistory || []).map((d, i) => (
                                 <div
                                   key={i}
                                   className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900 rounded-lg px-2.5 py-1.5 border border-slate-100 dark:border-slate-800"
@@ -633,11 +633,11 @@ export default function VendorCenter({ vendors, materials, triggerToast }: Vendo
                             <CreditCard className="w-3.5 h-3.5" />
                             Payment History
                           </div>
-                          {v.paymentHistory.length === 0 ? (
+                          {(v.paymentHistory || []).length === 0 ? (
                             <p className="text-[11px] text-slate-400 italic">No payment records.</p>
                           ) : (
                             <div className="space-y-1.5">
-                              {v.paymentHistory.map((p, i) => (
+                              {(v.paymentHistory || []).map((p, i) => (
                                 <div
                                   key={i}
                                   className="flex items-center justify-between text-[11px] bg-white dark:bg-slate-900 rounded-lg px-2.5 py-1.5 border border-slate-100 dark:border-slate-800"
@@ -794,9 +794,9 @@ export default function VendorCenter({ vendors, materials, triggerToast }: Vendo
 
                 {/* Sparkline */}
                 <div className="mt-3 h-12">
-                  {m.historicalPrices.length > 1 ? (
+                  {(m.historicalPrices || []).length > 1 ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={m.historicalPrices} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
+                      <LineChart data={m.historicalPrices || []} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
                         <Line
                           type="monotone"
                           dataKey="price"

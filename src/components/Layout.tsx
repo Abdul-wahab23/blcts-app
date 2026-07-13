@@ -36,16 +36,16 @@ const NAV_ITEMS: NavItem[] = [
 
   // Admin only
   { id: 'users', label: 'Users', icon: Users, roles: ['Administrator'] },
-  { id: 'material-prices', label: 'Material Prices', icon: Package, roles: ['Administrator'] },
-  { id: 'regional-pricing', label: 'Regional Pricing', icon: Map, roles: ['Administrator'] },
+  { id: 'prices', label: 'Material Prices', icon: Package, roles: ['Administrator'] },
+  { id: 'regions', label: 'Regional Pricing', icon: Map, roles: ['Administrator'] },
   { id: 'system', label: 'System', icon: Settings, roles: ['Administrator'] },
 
   // Building Owner only
-  { id: 'cost-estimation', label: 'Cost Estimation', icon: Calculator, roles: ['Building Owner'] },
+  { id: 'blueprint', label: 'Blueprint Analysis', icon: Layers, roles: ['Building Owner'] },
+  { id: 'estimation', label: 'Cost Estimation', icon: Calculator, roles: ['Building Owner'] },
 
   // Facility Manager only
   { id: 'maintenance', label: 'Maintenance', icon: Wrench, roles: ['Facility Manager'] },
-  { id: 'assets', label: 'Assets', icon: Layers, roles: ['Facility Manager'] },
 
   // All roles — separator before
   { id: 'reports', label: 'Reports', icon: FileText, roles: 'all', separator: true },

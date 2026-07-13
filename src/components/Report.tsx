@@ -660,7 +660,7 @@ export default function Report({
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(v: number) => formatKShFull(v)}
+                      formatter={(v: unknown) => formatKShFull(v as number)}
                       contentStyle={{ fontSize: "11px", borderRadius: "8px" }}
                     />
                     <Legend wrapperStyle={{ fontSize: "11px" }} />
@@ -696,7 +696,7 @@ export default function Report({
                       tickFormatter={(v) => formatKSh(v)}
                     />
                     <Tooltip
-                      formatter={(v: number) => formatKShFull(v)}
+                      formatter={(v: unknown) => formatKShFull(v as number)}
                       contentStyle={{ fontSize: "11px", borderRadius: "8px" }}
                     />
                     <Area

@@ -52,12 +52,13 @@ const labelCls = 'block text-sm font-medium text-slate-700 dark:text-slate-300 m
 // ─── Badge helpers ────────────────────────────────────────────────────────────
 
 function statusColor(s: MaintenanceStatus): 'amber' | 'blue' | 'green' | 'purple' | 'slate' {
-  const map: Record<MaintenanceStatus, 'amber' | 'blue' | 'green' | 'purple' | 'slate'> = {
+  const map: Partial<Record<MaintenanceStatus, 'amber' | 'blue' | 'green' | 'purple' | 'slate'>> = {
     Pending: 'amber',
     Assigned: 'blue',
     'In-Progress': 'blue',
     Completed: 'green',
     Verified: 'purple',
+    Overdue: 'amber',
   };
   return map[s] ?? 'slate';
 }
@@ -75,12 +76,8 @@ function priorityColor(p: MaintenancePriority): 'green' | 'amber' | 'red' | 'pur
 // ─── Workflow status → step index mapping ─────────────────────────────────────
 
 function statusToStepIndex(status: MaintenanceStatus): number {
-  const map: Record<MaintenanceStatus, number> = {
-    Pending: 1,
-    Assigned: 2,
-    'In-Progress': 3,
-    Completed: 4,
-    Verified: 5,
+  const map: Partial<Record<MaintenanceStatus, number>> = {
+    Pending: 1, Assigned: 2, 'In-Progress': 3, Completed: 4, Verified: 5, Overdue: 1,
   };
   return map[status] ?? 1;
 }
@@ -414,7 +411,7 @@ function TaskCard({ task, onStatusChange, onDelete, onEdit }: TaskCardProps) {
       {/* Status control */}
       <div className="pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
         <StatusDropdown current={task.status} onChange={(s) => onStatusChange(task.id, s)} />
-        <span className="text-[10px] text-slate-400">{fmtDate(task.updatedAt)}</span>
+        <span className="text-[10px] text-slate-400">{fmtDate(task.updatedAt ?? task.createdAt ?? '')}</span>
       </div>
     </div>
   );

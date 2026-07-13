@@ -195,8 +195,8 @@ export default function ExecutiveDashboard({
                   <Icon className="w-4.5 h-4.5" />
                 </div>
                 {kpi.trend && (
-                  <span className={`text-[9px] font-bold flex items-center gap-0.5 ${kpi.trend.startsWith("+") ? "text-rose-500" : "text-emerald-500"}`}>
-                    {kpi.trend.startsWith("+") ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                  <span className={`text-[9px] font-bold flex items-center gap-0.5 ${String(kpi.trend).startsWith("+") ? "text-rose-500" : "text-emerald-500"}`}>
+                    {String(kpi.trend).startsWith("+") ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                     {kpi.trend}
                   </span>
                 )}
