@@ -128,14 +128,14 @@ export default function MaintenanceManagement({
           category: r.category as MaintenanceCategory,
           priority: r.priority as MaintenancePriority,
           status: r.status as MaintenanceStatus,
-          assignedTo: r.assigned_to, technician: r.technician, vendor: r.vendor,
-          estimatedCost: r.estimated_cost, actualCost: r.actual_cost,
-          targetDate: r.target_date, completedDate: r.completed_date ?? undefined,
-          verifiedBy: r.verified_by ?? undefined, phone: r.phone ?? undefined,
-          notes: r.notes, partsUsed: r.parts_used ?? undefined,
-          labourHours: r.labour_hours ?? undefined, downtime: r.downtime ?? undefined,
-          attachments: r.attachments || [], workOrderNumber: r.work_order_number ?? undefined,
-        }));
+          assignedTo: (r.assigned_to as string) || '', technician: (r.technician as string) || '', vendor: (r.vendor as string) || '',
+          estimatedCost: Number(r.estimated_cost) || 0, actualCost: Number(r.actual_cost) || 0,
+          targetDate: (r.target_date as string) || '', completedDate: r.completed_date as string ?? undefined,
+          verifiedBy: r.verified_by as string ?? undefined, phone: r.phone as string ?? undefined,
+          notes: (r.notes as string) || '', partsUsed: r.parts_used as string ?? undefined,
+          labourHours: r.labour_hours != null ? Number(r.labour_hours) : undefined, downtime: r.downtime != null ? Number(r.downtime) : undefined,
+          attachments: (r.attachments as string[]) || [], workOrderNumber: (r.work_order_number as string) || `WO-${r.id}`,
+        })) as MaintenanceTask[];
         setLocalRecords(tasks);
       } else {
         try {
@@ -188,7 +188,7 @@ export default function MaintenanceManagement({
       list = list.filter(
         (r) =>
           r.title.toLowerCase().includes(q) ||
-          r.vendor.toLowerCase().includes(q) ||
+          (r.vendor || '').toLowerCase().includes(q) ||
           (r.technician || "").toLowerCase().includes(q) ||
           (r.partsUsed || "").toLowerCase().includes(q) ||
           r.notes.toLowerCase().includes(q) ||
@@ -269,8 +269,8 @@ export default function MaintenanceManagement({
       priority: record.priority,
       status: record.status,
       assignedTo: record.assignedTo,
-      technician: record.technician,
-      vendor: record.vendor,
+      technician: record.technician || '',
+      vendor: record.vendor || '',
       estimatedCost: record.estimatedCost,
       actualCost: record.actualCost,
       targetDate: record.targetDate,
@@ -447,7 +447,7 @@ export default function MaintenanceManagement({
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:opacity-20" />
               <XAxis dataKey="type" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={{ stroke: "#cbd5e1" }} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={(v) => formatKSh(v)} />
-              <Tooltip cursor={{ fill: "rgba(16,185,129,0.06)" }} contentStyle={{ backgroundColor: "rgba(15,23,42,0.95)", border: "1px solid rgba(148,163,184,0.2)", borderRadius: "12px", fontSize: "12px", color: "#f1f5f9" }} labelStyle={{ color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", fontSize: "10px" }} formatter={(value: number) => [formatKShFull(value), "Cost"]} />
+              <Tooltip cursor={{ fill: "rgba(16,185,129,0.06)" }} contentStyle={{ backgroundColor: "rgba(15,23,42,0.95)", border: "1px solid rgba(148,163,184,0.2)", borderRadius: "12px", fontSize: "12px", color: "#f1f5f9" }} labelStyle={{ color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", fontSize: "10px" }} formatter={(value: unknown) => [formatKShFull(value as number), "Cost"]} />
               <Bar dataKey="cost" radius={[6, 6, 0, 0]} maxBarSize={64}>
                 {chartData.map((entry) => (
                   <Cell key={entry.type} fill={CATEGORY_STYLES[entry.type as MaintenanceCategory]?.bar || "#10b981"} />

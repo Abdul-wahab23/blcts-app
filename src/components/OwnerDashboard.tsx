@@ -387,7 +387,7 @@ export default function OwnerDashboard({
                   { label: "Approve Budget", done: properties.some(p => p.status === "Under Construction" || p.status === "Active"), onClick: () => setActiveTab("cost-estimation") },
                   { label: "Monitor Construction", done: properties.some(p => p.status === "Under Construction"), onClick: () => setActiveTab("properties-mgmt") },
                   { label: "Monitor Maintenance", done: properties.some(p => p.status === "Active"), onClick: () => setActiveTab("maintenance") },
-                  { label: "View Lifecycle Costs", done: properties.some(p => (p.totalLifecycleCostRecord || 0) > 0), onClick: () => setActiveTab("cost-estimation") },
+                  { label: "View Lifecycle Costs", done: properties.some(p => (p.initialConstructionCost || 0) > 0), onClick: () => setActiveTab("cost-estimation") },
                   { label: "Review AI Insights", done: predictions.length > 0, onClick: () => setActiveTab("ai-predictions") },
                   { label: "Download Reports", done: true, onClick: () => setActiveTab("reports") },
                 ]}
@@ -456,7 +456,7 @@ export default function OwnerDashboard({
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.3} />
                   <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={(v) => formatKSh(v)} />
-                  <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => formatKSh(v)} />
+                  <Tooltip contentStyle={chartTooltipStyle} formatter={(v: unknown) => formatKSh(v as number)} />
                   <Area type="monotone" dataKey="capex" stroke="#3b82f6" strokeWidth={2} fill="url(#capexGrad)" name="CAPEX" />
                   <Area type="monotone" dataKey="opex" stroke="#f59e0b" strokeWidth={2} fill="url(#opexGrad)" name="OPEX" />
                 </AreaChart>
@@ -771,7 +771,7 @@ export default function OwnerDashboard({
                               <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                             ))}
                           </Pie>
-                          <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => formatKSh(v)} />
+                          <Tooltip contentStyle={chartTooltipStyle} formatter={(v: unknown) => formatKSh(v as number)} />
                         </PieChart>
                       </ResponsiveContainer>
                     ) : (
@@ -798,7 +798,7 @@ export default function OwnerDashboard({
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.3} />
                         <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={(v) => formatKSh(v)} />
-                        <Tooltip contentStyle={chartTooltipStyle} formatter={(v: number) => formatKSh(v)} />
+                        <Tooltip contentStyle={chartTooltipStyle} formatter={(v: unknown) => formatKSh(v as number)} />
                         <Bar dataKey="amount" fill="#10b981" radius={[6, 6, 0, 0]} name="Cost" />
                       </BarChart>
                     </ResponsiveContainer>

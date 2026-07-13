@@ -5,6 +5,7 @@ import {
   Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell
 } from "recharts";
 import { Property } from "../types";
+import type { BOQEstimate } from "../types";
 import {
   getCostConfigFromStorage, setCostConfigToStorage,
   CostEstimateConfig, DEFAULT_CONFIG, formatKSh, getAllCounties
@@ -92,7 +93,7 @@ export default function CostEstimation({ selectedProperty, blueprintAnalysis: bl
   const [loading, setLoading]         = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [regionalRows, setRegionalRows] = useState<RegionalPricingRow[]>([]);
-  const [savedEstimates, setSavedEstimates] = useState<BOQEstimateRow[]>([]);
+  const [savedEstimates, setSavedEstimates] = useState<BOQEstimate[]>([]);
   const [showConfig, setShowConfig]   = useState(false);
   const [showBOQ, setShowBOQ]         = useState(true);
   const [showLifecycle, setShowLifecycle] = useState(true);
@@ -724,10 +725,10 @@ ${blueprintAnalysis ? `
                 <div className="h-52">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={pieSummaryData} cx="50%" cy="50%" outerRadius={80} dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={9}>
+                      <Pie data={pieSummaryData} cx="50%" cy="50%" outerRadius={80} dataKey="value" nameKey="name" label={({ name, percent }: { name?: string; percent?: number }) => `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
                         {pieSummaryData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                       </Pie>
-                      <Tooltip formatter={(v: number) => `KSh ${v.toLocaleString()}`} />
+                      <Tooltip formatter={(v: unknown) => `KSh ${(v as number).toLocaleString()}`} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -829,7 +830,7 @@ ${blueprintAnalysis ? `
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="year" tick={{ fontSize: 10 }} label={{ value: "Year", position: "insideBottom", offset: -5 }} />
                       <YAxis tickFormatter={v => `${(v/1e6).toFixed(0)}M`} tick={{ fontSize: 10 }} />
-                      <Tooltip formatter={(v: number) => `KSh ${v.toLocaleString()}`} labelFormatter={l => `Year ${l}`} />
+                      <Tooltip formatter={(v: unknown) => `KSh ${(v as number).toLocaleString()}`} labelFormatter={(l: unknown) => `Year ${l}`} />
                       <Legend wrapperStyle={{ fontSize: 10 }} />
                       <Area type="monotone" dataKey="cumulative" stroke="#10b981" fill="#d1fae5" strokeWidth={2} name="Cumulative TCO" />
                     </AreaChart>
@@ -846,7 +847,7 @@ ${blueprintAnalysis ? `
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis dataKey="year" tick={{ fontSize: 10 }} />
                       <YAxis tickFormatter={v => `${(v/1e6).toFixed(1)}M`} tick={{ fontSize: 10 }} />
-                      <Tooltip formatter={(v: number) => `KSh ${v.toLocaleString()}`} labelFormatter={l => `Year ${l}`} />
+                      <Tooltip formatter={(v: unknown) => `KSh ${(v as number).toLocaleString()}`} labelFormatter={(l: unknown) => `Year ${l}`} />
                       <Legend wrapperStyle={{ fontSize: 10 }} />
                       <Bar dataKey="maintenance" name="Maintenance" fill="#10b981" stackId="a" />
                       <Bar dataKey="utilities" name="Utilities" fill="#0ea5e9" stackId="a" />
@@ -1016,10 +1017,10 @@ ${blueprintAnalysis ? `
                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                   {savedEstimates.slice(0, 10).map(e => (
                     <tr key={e.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                      <td className="px-4 py-2 text-xs text-slate-500">{new Date(e.created_at).toLocaleDateString()}</td>
-                      <td className="px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300">{e.construction_standard}</td>
+                      <td className="px-4 py-2 text-xs text-slate-500">{new Date(e.createdAt).toLocaleDateString()}</td>
+                      <td className="px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300">{e.constructionStandard}</td>
                       <td className="px-4 py-2 text-right text-xs font-mono text-slate-600 dark:text-slate-400">{e.gfa.toLocaleString()} m²</td>
-                      <td className="px-4 py-2 text-right text-xs font-bold text-emerald-600">{fmtK(e.total_project_cost)}</td>
+                      <td className="px-4 py-2 text-right text-xs font-bold text-emerald-600">{fmtK(e.totalProjectCost)}</td>
                       <td className="px-4 py-2 text-right text-xs font-bold text-amber-600">{fmtK(e.tco)}</td>
                     </tr>
                   ))}
