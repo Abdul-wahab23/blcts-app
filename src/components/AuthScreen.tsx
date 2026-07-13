@@ -1,652 +1,246 @@
-import React, { useState } from "react";
-import { 
-  Building2, 
-  Mail, 
-  Lock, 
-  User as UserIcon, 
-  Briefcase, 
-  Phone, 
-  ArrowRight, 
-  ShieldCheck, 
-  Cpu, 
-  KeyRound,
-  Eye,
-  EyeOff,
-  Sparkles,
-  Crown
-} from "lucide-react";
-import { User, UserRole } from "../types";
-import { motion, AnimatePresence } from "motion/react";
+import { useState } from 'react';
+import { Building2, Eye, EyeOff, LogIn } from 'lucide-react';
+import type { User } from '../types';
 
-interface AuthScreenProps {
-  onLoginSuccess: (user: User) => void;
-  isDarkMode: boolean;
+// ─── Demo accounts ────────────────────────────────────────────────────────────
+const DEMO_ACCOUNTS: (User & { password: string })[] = [
+  {
+    id: 'demo-admin-001',
+    name: 'Admin User',
+    email: 'admin@blcts.ke',
+    password: 'admin123',
+    role: 'Administrator',
+    organization: 'BLCTS HQ',
+  },
+  {
+    id: 'demo-owner-001',
+    name: 'Building Owner',
+    email: 'owner@blcts.ke',
+    password: 'owner123',
+    role: 'Building Owner',
+    organization: 'Nairobi Properties Ltd',
+  },
+  {
+    id: 'demo-fm-001',
+    name: 'Facility Manager',
+    email: 'fm@blcts.ke',
+    password: 'fm123',
+    role: 'Facility Manager',
+    organization: 'FM Services Kenya',
+  },
+];
+
+const ROLE_COLOR: Record<string, string> = {
+  Administrator:
+    'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-900/40',
+  'Building Owner':
+    'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/40',
+  'Facility Manager':
+    'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/40',
+};
+
+interface Props {
+  onLogin: (user: User) => void;
 }
 
-export default function AuthScreen({ onLoginSuccess, isDarkMode }: AuthScreenProps) {
-  const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<"Facility Manager" | "Building Owner">("Facility Manager");
-  const [organization, setOrganization] = useState("Wandera Investments Ltd");
-  
+export function AuthScreen({ onLogin }: Props) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Simulation states
-  const [authStatus, setAuthStatus] = useState<"idle" | "verifying" | "finalizing" | "success">("idle");
-  const [syncMessage, setSyncMessage] = useState("");
- 
-  const handleQuickLogin = (preset: "admin" | "manager" | "owner") => {
-    setError(null);
-    if (preset === "admin") {
-      setEmail("admin@blcts.com");
-      setPassword("adminPass123");
-      setName("Abdulwahab Wandera");
-      setRole("Facility Manager");
-      setOrganization("Wandera Investments Ltd");
-      setPhone("+254 712 345 678");
-    } else if (preset === "manager") {
-      setEmail("manager@blcts.com");
-      setPassword("managerPass99");
-      setName("Kamau Njoroge");
-      setRole("Facility Manager");
-      setOrganization("Thika Block Management");
-      setPhone("+254 722 987 654");
-    } else if (preset === "owner") {
-      setEmail("owner@blcts.com");
-      setPassword("ownerPass77");
-      setName("Aisha Mohamed");
-      setRole("Building Owner");
-      setOrganization("Mohamed Development Group");
-      setPhone("+254 733 123 456");
-    }
-    // Select login tab automatically
-    setActiveTab("login");
-  };
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Initialize standard user accounts with SHA-256 secure hashes on mount
-  React.useEffect(() => {
-    const defaultUsers = [
-      {
-        id: "user-admin",
-        email: "admin@blcts.com",
-        name: "Abdulwahab Wandera",
-        role: "Administrator",
-        organization: "Wandera Investments Ltd",
-        phone: "+254 712 345 678",
-        passwordHash: "4b971cafd7903d148bda8f8aa7faa57b769cded513ecb31e124d1e010a80555f"
-      },
-      {
-        id: "user-manager",
-        email: "manager@blcts.com",
-        name: "Kamau Njoroge",
-        role: "Facility Manager",
-        organization: "Thika Block Management",
-        phone: "+254 722 987 654",
-        passwordHash: "276cbf1e0dd8b5d1bd515780206dfbf0257d379494feefee8503f2d85e9a7c2a"
-      },
-      {
-        id: "user-owner",
-        email: "owner@blcts.com",
-        name: "Aisha Mohamed",
-        role: "Building Owner",
-        organization: "Mohamed Development Group",
-        phone: "+254 733 123 456",
-        passwordHash: "29cf5c7634755973d2646d902a6a46ffd64d5cc3d3d91096d80811a2beee7b15"
-      },
-      {
-        id: "user-engineer",
-        email: "lead.engineer@davis-shirtliff.co.ke",
-        name: "Jane Atieno",
-        role: "Facility Manager",
-        organization: "Davis & Shirtliff Tech",
-        phone: "+254 733 445 566",
-        passwordHash: "02f0cdcbe300c5a93067cecb66b1aa7a78834a5af425c02f73b636f7745433fc"
-      }
-    ];
-    const stored = localStorage.getItem("blcts-users");
-    if (!stored) {
-      localStorage.setItem("blcts-users", JSON.stringify(defaultUsers));
-    } else {
-      // Merge: ensure demo accounts always exist with correct credentials
-      try {
-        const existing = JSON.parse(stored);
-        const merged = [...existing];
-        for (const demo of defaultUsers) {
-          const idx = merged.findIndex((u: any) => u.id === demo.id || u.email === demo.email);
-          if (idx >= 0) {
-            merged[idx] = { ...merged[idx], ...demo };
-          } else {
-            merged.push(demo);
-          }
-        }
-        localStorage.setItem("blcts-users", JSON.stringify(merged));
-      } catch {
-        localStorage.setItem("blcts-users", JSON.stringify(defaultUsers));
-      }
-    }
-  }, []);
-
-  // Secure SHA-256 cryptographic hashing helper
-  const hashPassword = async (pwd: string): Promise<string> => {
-    const msgBuffer = new TextEncoder().encode(pwd);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-  };
-
-  const executeAuthSimulation = (userPayload: User) => {
-    setAuthStatus("verifying");
-    setSyncMessage("Authenticating credentials...");
-    
-    setTimeout(() => {
-      setAuthStatus("finalizing");
-      setSyncMessage("Preparing your dashboard...");
-    }, 600);
-
-    setTimeout(() => {
-      setAuthStatus("success");
-      setSyncMessage("Welcome. Redirecting to your dashboard...");
-      setTimeout(() => {
-        onLoginSuccess(userPayload);
-      }, 400);
-    }, 1200);
-  };
-
-  const handleLoginSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError('');
+    setLoading(true);
 
-    if (!email || !password) {
-      setError("Please enter your email and password.");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    try {
-      const hashedInput = await hashPassword(password);
-      const storedUsersJson = localStorage.getItem("blcts-users");
-      const storedUsers = storedUsersJson ? JSON.parse(storedUsersJson) : [];
-
-      const matchedUser = storedUsers.find(
-        (u: any) => u.email.toLowerCase().trim() === email.toLowerCase().trim()
+    // Simulate a brief async check
+    setTimeout(() => {
+      const match = DEMO_ACCOUNTS.find(
+        (a) => a.email.toLowerCase() === email.trim().toLowerCase() && a.password === password
       );
 
-      if (!matchedUser) {
-        setError("Account not found. Please register or contact your administrator.");
+      if (!match) {
+        setError('Invalid email or password. Try one of the demo accounts below.');
+        setLoading(false);
         return;
       }
 
-      if (matchedUser.passwordHash !== hashedInput) {
-        setError("Invalid secret passcode. Access denied.");
-        return;
-      }
-
-      const userPayload: User = {
-        id: matchedUser.id || `user-${Date.now()}`,
-        name: matchedUser.name,
-        email: matchedUser.email,
-        role: matchedUser.role,
-        organization: matchedUser.organization,
-        phone: matchedUser.phone
+      // Build User (strip password)
+      const user: User = {
+        id: match.id,
+        name: match.name,
+        email: match.email,
+        role: match.role,
+        organization: match.organization,
       };
 
-      executeAuthSimulation(userPayload);
-    } catch (err) {
-      setError("System encryption error during verification.");
-    }
+      // Persist to localStorage so the app can restore session
+      localStorage.setItem('blcts_user', JSON.stringify(user));
+      onLogin(user);
+      setLoading(false);
+    }, 400);
   };
 
-  const handleSignupSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!email || !password || !name) {
-      setError("Please fill in Name, Email, and Password.");
-      return;
-    }
-
-    const signupEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!signupEmailRegex.test(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    if (name.trim().length < 2) {
-      setError("Please enter your full name (at least 2 characters).");
-      return;
-    }
-
-    if (password.length < 8) {
-      setError("Passwords require at least 8 characters for security.");
-      return;
-    }
-
-    if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-      setError("Passwords must include at least one uppercase letter and one number.");
-      return;
-    }
-
-    try {
-      const storedUsersJson = localStorage.getItem("blcts-users");
-      const storedUsers = storedUsersJson ? JSON.parse(storedUsersJson) : [];
-
-      const userExists = storedUsers.some(
-        (u: any) => u.email.toLowerCase().trim() === email.toLowerCase().trim()
-      );
-
-      if (userExists) {
-        setError("This email address is already registered in BLCTS.");
-        return;
-      }
-
-      const passwordHash = await hashPassword(password);
-      const newRegisteredUser = {
-        id: `user-${Date.now()}`,
-        name,
-        email: email.toLowerCase().trim(),
-        role,
-        organization: organization || "Municipal Land Management",
-        phone: phone || "+254 700 000 000",
-        passwordHash
-      };
-
-      const updatedUsers = [...storedUsers, newRegisteredUser];
-      localStorage.setItem("blcts-users", JSON.stringify(updatedUsers));
-
-      const userPayload: User = {
-        id: newRegisteredUser.id,
-        name: newRegisteredUser.name,
-        email: newRegisteredUser.email,
-        role: newRegisteredUser.role as UserRole,
-        organization: newRegisteredUser.organization,
-        phone: newRegisteredUser.phone
-      };
-
-      executeAuthSimulation(userPayload);
-    } catch (err) {
-      setError("System encryption error during registration.");
-    }
+  const autofill = (account: (typeof DEMO_ACCOUNTS)[0]) => {
+    setEmail(account.email);
+    setPassword(account.password);
+    setError('');
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-200 ${
-      isDarkMode ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
-    }`}>
-      {/* Dynamic Background visual ornaments */}
-      <div className="absolute top-[-25%] left-[-15%] w-[60%] h-[70%] rounded-full bg-gradient-to-br from-emerald-500/10 to-transparent blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[60%] rounded-full bg-gradient-to-tr from-sky-500/10 to-transparent blur-[125px] pointer-events-none" />
-      <div className="absolute -inset-0 bg-[linear-gradient(to_right,#1e293b0e_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0e_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#0f172a55_1px,transparent_1px),linear-gradient(to_bottom,#0f172a55_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] pointer-events-none" />
-
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-        
-        {/* Left Side: Brand presentation card */}
-        <div className="lg:col-span-5 space-y-6 text-left hidden lg:block">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-400 p-3 rounded-2xl border border-emerald-400/20 shadow-lg text-slate-950">
-              <Building2 className="w-7 h-7" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-black text-emerald-500 tracking-widest block font-display">
-                Enterprise Suite
-              </span>
-              <h1 className="text-xl font-black text-slate-950 dark:text-white font-display tracking-tight leading-none mt-1">
-                BLCTS PORTAL
-              </h1>
-            </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-emerald-50/30 to-slate-100 dark:from-slate-950 dark:via-emerald-950/20 dark:to-slate-900 p-4">
+      {/* Card */}
+      <div className="w-full max-w-md">
+        {/* Logo / Brand */}
+        <div className="flex flex-col items-center mb-8 gap-3">
+          <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg shadow-emerald-200/60 dark:shadow-emerald-900/40">
+            <Building2 className="w-8 h-8 text-white" strokeWidth={1.75} />
           </div>
-
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-display tracking-tight leading-snug">
-              Maximize Asset Integrity, Eliminate First-Cost Bias
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
-              A comprehensive platform for tracking building lifecycle costs. Forecast long-term material wear, compute total cost of ownership, and leverage AI-enhanced analytics for smarter financial decisions.
+          <div className="text-center">
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              BLCTS
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 tracking-wide">
+              Building Lifecycle Cost Tracking System
             </p>
-          </div>
-
-          {/* Core Feature bullet outline */}
-          <div className="space-y-3 pt-3 border-t border-slate-200/60 dark:border-slate-800">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 bg-emerald-500/10 text-emerald-400 p-1 rounded-lg border border-emerald-500/10 shrink-0">
-                <Cpu className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-display">
-                  AI-Enhanced Analytics
-                </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-500 mt-0.5 leading-snug">
-                  Predicts maintenance costs, detects budget anomalies, and recommends preventive actions.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 bg-sky-500/10 text-sky-400 p-1 rounded-lg border border-sky-500/10 shrink-0">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-display">
-                  TCO Forecast Engine
-                </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                  Computes total cost of ownership across the full building lifecycle with regional pricing.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 bg-amber-500/10 text-amber-500 p-1 rounded-lg border border-amber-500/10 shrink-0">
-                <KeyRound className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-display">
-                  Secure Role-Based Access
-                </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                  Separate dashboards and permissions for administrators, facility managers, and building owners.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick-select profiles banner info */}
-          <div className="p-3 bg-slate-100 dark:bg-slate-900/60 border border-slate-200/40 dark:border-slate-800/80 rounded-2xl flex items-center gap-2 text-xs">
-            <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span className="text-slate-600 dark:text-slate-400 leading-normal">
-              Select a preset account on the right to quickly access the platform.
-            </span>
           </div>
         </div>
 
-        {/* Right Side: Responsive Auth Card panel */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl shadow-[0_15px_60px_-15px_rgba(0,0,0,0.1)] p-6 sm:p-8 relative">
-          
-          {/* Logo flag for mobile */}
-          <div className="lg:hidden flex items-center justify-center gap-2 mb-6">
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-400 p-2 rounded-xl text-slate-950">
-              <Building2 className="w-5 h-5" />
+        {/* Login form card */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/80 dark:shadow-black/40 border border-slate-100 dark:border-slate-800 p-8">
+          <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">
+            Sign in to your account
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+            Use your credentials or a demo account below.
+          </p>
+
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+            {/* Email */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="email"
+                className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide"
+              >
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError('');
+                }}
+                placeholder="you@example.com"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+              />
             </div>
-            <span className="font-extrabold text-sm font-display uppercase tracking-widest text-slate-900 dark:text-white">
-              BLCTS Portal
-            </span>
-          </div>
 
-          <AnimatePresence mode="wait">
-            {authStatus === "idle" ? (
-              <motion.div
-                key="auth-form-content"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-6"
+            {/* Password */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="password"
+                className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide"
               >
-                {/* Form Navigation Tabs */}
-                <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl font-bold">
-                  <button
-                    onClick={() => { setActiveTab("login"); setError(null); }}
-                    className={`flex-1 py-2 text-xs rounded-lg transition-all cursor-pointer ${
-                      activeTab === "login"
-                        ? "bg-white dark:bg-slate-800 text-slate-950 dark:text-emerald-400 shadow-sm"
-                        : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-                    }`}
-                  >
-                    Log In
-                  </button>
-                  <button
-                    onClick={() => { setActiveTab("signup"); setError(null); }}
-                    className={`flex-1 py-2 text-xs rounded-lg transition-all cursor-pointer ${
-                      activeTab === "signup"
-                        ? "bg-white dark:bg-slate-800 text-slate-950 dark:text-emerald-400 shadow-sm"
-                        : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-                    }`}
-                  >
-                    Register Account
-                  </button>
-                </div>
-
-                <div className="text-center">
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white tracking-tight font-display">
-                    {activeTab === "login" ? "Welcome Back to BLCTS" : "Create Enterprise Account"}
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-light">
-                    {activeTab === "login" 
-                      ? "Sign in to review asset durability metrics and invoice registers" 
-                      : "Register to manage municipalities structure catalogs and logs"
-                    }
-                  </p>
-                </div>
-
-                {error && (
-                  <div className="p-3 bg-red-50 dark:bg-rose-950/20 border border-red-200 dark:border-rose-900/40 text-red-800 dark:text-rose-300 rounded-xl text-xs font-semibold flex items-center gap-2">
-                    <span className="shrink-0">•</span>
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                {/* Submitting Forms */}
-                <form onSubmit={activeTab === "login" ? handleLoginSubmit : handleSignupSubmit} className="space-y-4 text-left">
-                  
-                  {activeTab === "signup" && (
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
-                        Full Name *
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          required
-                          placeholder="e.g. Abdulwahab Wandera"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2 px-3 pl-10 text-xs focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-slate-100 caret-slate-900 dark:caret-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium"
-                        />
-                        <UserIcon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-                      </div>
-                    </div>
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError('');
+                  }}
+                  placeholder="••••••••"
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((p) => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition"
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
                   )}
+                </button>
+              </div>
+            </div>
 
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
-                      Work Email *
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="email"
-                        required
-                        placeholder="e.g. wanderaabdulwahab4@gmail.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2 px-3 pl-10 text-xs focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-slate-100 caret-slate-900 dark:caret-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium"
-                      />
-                      <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-                    </div>
-                  </div>
-
-                  {/* Standard details for user customization */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
-                        System Role Profile *
-                      </label>
-                      <div className="relative">
-                        <select
-                          value={role}
-                          onChange={(e) => setRole(e.target.value as any)}
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2 px-3 pl-10 text-xs focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-slate-100 caret-slate-900 dark:caret-slate-100 font-semibold cursor-pointer appearance-none"
-                        >
-                          <option value="Facility Manager">Facility Manager</option>
-                          <option value="Building Owner">Building Owner / Developer</option>
-                        </select>
-                        <Briefcase className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-                      </div>
-                      <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">
-                        Administrator accounts are created by an existing administrator. Contact your system administrator if you need admin access.
-                      </p>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
-                        Contact Number
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="tel"
-                          placeholder="e.g. +254 712 345 678"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2 px-3 pl-10 text-xs focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-slate-100 caret-slate-900 dark:caret-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-mono"
-                        />
-                        <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
-                      Corporate Organization
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Wandera Investments Ltd"
-                      value={organization}
-                      onChange={(e) => setOrganization(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-slate-100 caret-slate-900 dark:caret-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between">
-                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block font-display">
-                        Secret Password *
-                      </label>
-                      {activeTab === "login" && (
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                          Use a demo account for quick access
-                        </span>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        required
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-2 px-3 pl-10 pr-10 text-xs focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-400 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-slate-100 caret-slate-900 dark:caret-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-mono"
-                      />
-                      <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-350 text-slate-950 font-extrabold text-xs uppercase tracking-widest rounded-xl shadow-lg hover:shadow-emerald-500/10 transition-all duration-200 flex items-center justify-center gap-2 mt-6 cursor-pointer transform active:scale-95"
-                  >
-                    <span>{activeTab === "login" ? "Verify Credentials" : "Initialize Infrastructure Profile"}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </form>
-
-                {/* Quick login preset triggers */}
-                <div className="border-t border-slate-150 dark:border-slate-800/80 pt-5 space-y-3">
-                  <div className="text-[9px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider text-center font-display">
-                    Quick Access
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleQuickLogin("admin")}
-                      className="border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 bg-slate-50/50 dark:bg-slate-950/40 p-2.5 rounded-xl text-left transition-all hover:bg-white dark:hover:bg-slate-900 group cursor-pointer"
-                    >
-                      <div className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Administrator</div>
-                      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-emerald-400 mt-0.5">System Administrator</div>
-                      <div className="text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5">admin@blcts.com</div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleQuickLogin("manager")}
-                      className="border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 bg-slate-50/50 dark:bg-slate-950/40 p-2.5 rounded-xl text-left transition-all hover:bg-white dark:hover:bg-slate-900 group cursor-pointer"
-                    >
-                      <div className="text-[9px] font-bold text-sky-400 uppercase tracking-widest">Kamau Njoroge</div>
-                      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-sky-400 mt-0.5">Facility Manager</div>
-                      <div className="text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5">manager@blcts.com</div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleQuickLogin("owner")}
-                      className="border border-slate-200 dark:border-slate-800 hover:border-amber-500/50 bg-slate-50/50 dark:bg-slate-950/40 p-2.5 rounded-xl text-left transition-all hover:bg-white dark:hover:bg-slate-900 group cursor-pointer sm:col-span-2"
-                    >
-                      <div className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Building Owner</div>
-                      <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-amber-400 mt-0.5">Aisha Mohamed</div>
-                      <div className="text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5">owner@blcts.com</div>
-                    </button>
-                  </div>
-                </div>
-
-              </motion.div>
-            ) : (
-              <motion.div
-                key="auth-sync-simulation"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-                className="py-12 px-4 flex flex-col items-center justify-center text-center space-y-6"
-              >
-                {/* Advanced Sync Circle indicator */}
-                <div className="relative flex items-center justify-center">
-                  <span className="absolute inline-flex h-20 w-20 rounded-full bg-emerald-500/10 animate-pulse border border-emerald-500/20" />
-                  <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 text-emerald-400 shadow-xl relative z-10">
-                    <Cpu className="w-10 h-10 animate-spin" style={{ animationDuration: "3s" }} />
-                  </div>
-                </div>
-
-                <div className="space-y-2 max-w-sm">
-                  <h3 className="text-sm font-extrabold uppercase tracking-widest text-emerald-500 font-display">
-                    Secure Handshake Sequence
-                  </h3>
-                  <p className="text-base font-bold text-slate-900 dark:text-white">
-                    Initializing Infrastructure Console...
-                  </p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-mono px-4 h-10">
-                    {syncMessage}
-                  </p>
-                </div>
-
-                {/* Loading bar */}
-                <div className="w-48 bg-slate-100 dark:bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-200/50 dark:border-slate-900">
-                  <div 
-                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300"
-                    style={{ 
-                      width: 
-                        authStatus === "verifying" ? "40%" : 
-                        authStatus === "finalizing" ? "85%" : "100%" 
-                    }}
-                  />
-                </div>
-              </motion.div>
+            {/* Error message */}
+            {error && (
+              <div className="flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/40 rounded-lg px-3 py-2.5">
+                <span className="mt-0.5 flex-shrink-0">⚠</span>
+                <span>{error}</span>
+              </div>
             )}
-          </AnimatePresence>
 
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading || !email || !password}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 dark:disabled:bg-emerald-900/50 disabled:cursor-not-allowed text-white font-semibold text-sm transition shadow-sm shadow-emerald-200 dark:shadow-emerald-900/30 mt-1"
+            >
+              {loading ? (
+                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              ) : (
+                <LogIn className="w-4 h-4" />
+              )}
+              {loading ? 'Signing in…' : 'Sign In'}
+            </button>
+          </form>
+        </div>
+
+        {/* Demo accounts */}
+        <div className="mt-6">
+          <p className="text-center text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">
+            Demo accounts — click to autofill
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {DEMO_ACCOUNTS.map((account) => (
+              <button
+                key={account.id}
+                type="button"
+                onClick={() => autofill(account)}
+                className="flex flex-col items-start gap-1.5 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-900/60 transition text-left group"
+              >
+                {/* Role badge */}
+                <span
+                  className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider border ${ROLE_COLOR[account.role]}`}
+                >
+                  {account.role === 'Administrator'
+                    ? 'Admin'
+                    : account.role === 'Building Owner'
+                    ? 'Owner'
+                    : 'FM'}
+                </span>
+
+                <div className="w-full">
+                  <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition">
+                    {account.email}
+                  </p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 tracking-wide">
+                    {account.password}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+          <p className="text-center text-[10px] text-slate-400 dark:text-slate-600 mt-4">
+            New accounts are created by an Administrator.
+          </p>
         </div>
       </div>
     </div>
