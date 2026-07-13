@@ -1,26 +1,5 @@
 import React from 'react';
-import {
-  LayoutDashboard,
-  FolderOpen,
-  Users,
-  Wrench,
-  AlertTriangle,
-  DollarSign,
-  MapPin,
-  FileText,
-  Settings,
-  ChevronRight,
-  CheckCircle2,
-  Circle,
-  Clock,
-  TrendingUp,
-  Building2,
-  ClipboardList,
-  BarChart3,
-  ShieldCheck,
-  ArrowRight,
-  Activity,
-} from 'lucide-react';
+import { LayoutDashboard, FolderOpen, Users, Wrench, TriangleAlert as AlertTriangle, DollarSign, MapPin, FileText, Settings, ChevronRight, CircleCheck as CheckCircle2, Circle, Clock, TrendingUp, Building2, ClipboardList, ChartBar as BarChart3, ShieldCheck, ArrowRight, Activity } from 'lucide-react';
 import { User, Project } from '../types';
 import { fmtKSh } from '../lib/format';
 import { Badge } from './ui/Badge';

@@ -3,12 +3,7 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import {
-  Building2, MapPin, Layers, TrendingUp, DollarSign, Calculator,
-  FileText, Download, ChevronDown, ChevronUp, AlertTriangle,
-  CheckCircle2, RefreshCw, Printer, FileSpreadsheet, Info, Loader2,
-  BarChart2, Clock, Shield, Wrench, Zap,
-} from 'lucide-react';
+import { Building2, MapPin, Layers, TrendingUp, DollarSign, Calculator, FileText, Download, ChevronDown, ChevronUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, RefreshCw, Printer, FileSpreadsheet, Info, Loader as Loader2, ChartBar as BarChart2, Clock, Shield, Wrench, Zap } from 'lucide-react';
 import { calculateBOQ } from '../lib/boq';
 import { fetchRegionalPricing, saveBOQ, fetchBOQHistory } from '../lib/supabase';
 import { fmtKSh, fmtKShFull, fmtPct } from '../lib/format';

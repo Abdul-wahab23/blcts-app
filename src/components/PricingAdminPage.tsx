@@ -1,19 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  DollarSign,
-  MapPin,
-  RefreshCw,
-  Pencil,
-  Check,
-  X,
-  Loader2,
-  ChevronLeft,
-  Package,
-  Hammer,
-  Cog,
-  Info,
-  AlertCircle,
-} from 'lucide-react';
+import { DollarSign, MapPin, RefreshCw, Pencil, Check, X, Loader as Loader2, ChevronLeft, Package, Hammer, Cog, Info, CircleAlert as AlertCircle } from 'lucide-react';
 import { MaterialRow, RegionalPricingRow } from '../types';
 import { fetchMaterials, fetchRegionalPricing, updateMaterialPrice, invalidateCache } from '../lib/supabase';
 import { fmtKSh } from '../lib/format';

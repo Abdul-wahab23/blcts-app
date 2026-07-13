@@ -1,23 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Plus,
-  Search,
-  Filter,
-  Wrench,
-  Calendar,
-  DollarSign,
-  User as UserIcon,
-  Trash2,
-  Edit3,
-  ChevronDown,
-  X,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  Loader2,
-  ClipboardList,
-  ArrowRight,
-} from 'lucide-react';
+import { Plus, Search, ListFilter as Filter, Wrench, Calendar, DollarSign, User as UserIcon, Trash2, CreditCard as Edit3, ChevronDown, X, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, Clock, Loader as Loader2, ClipboardList, ArrowRight } from 'lucide-react';
 import { User, MaintenanceTask, MaintenanceStatus, MaintenancePriority, MaintenanceCategory } from '../types';
 import { fetchTasks, upsertTask, deleteTask } from '../lib/supabase';
 import { fmtKSh, fmtDate } from '../lib/format';

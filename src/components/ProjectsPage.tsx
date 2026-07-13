@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusCircle, MapPin, Building2, Layers, Upload, Eye, FolderOpen, X, FileCheck } from 'lucide-react';
+import { CirclePlus as PlusCircle, MapPin, Building2, Layers, Upload, Eye, FolderOpen, X, FileCheck } from 'lucide-react';
 import { User, Project, BuildingType, ConstructionStandard } from '../types';
 import { Badge } from './ui/Badge';
 

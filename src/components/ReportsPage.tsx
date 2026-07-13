@@ -1,22 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FileText,
-  Download,
-  Printer,
-  BarChart3,
-  Building2,
-  DollarSign,
-  TrendingUp,
-  Calendar,
-  MapPin,
-  Loader2,
-  AlertCircle,
-  ArrowRight,
-  Table,
-  ChevronDown,
-  ChevronUp,
-  Layers,
-} from 'lucide-react';
+import { FileText, Download, Printer, ChartBar as BarChart3, Building2, DollarSign, TrendingUp, Calendar, MapPin, Loader as Loader2, CircleAlert as AlertCircle, ArrowRight, Table, ChevronDown, ChevronUp, Layers } from 'lucide-react';
 import { Project, BOQEstimate } from '../types';
 import { fetchBOQHistory } from '../lib/supabase';
 import { fmtKSh, fmtKShFull, fmtDate, fmtPct } from '../lib/format';

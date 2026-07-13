@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, ChevronRight } from 'lucide-react';
+import { CircleCheck as CheckCircle2, Circle, ChevronRight } from 'lucide-react';
 
 interface Step {
   label: string;

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Upload, FileCheck, AlertTriangle, CheckCircle2, ChevronRight, X, ArrowLeft, Loader2, Eye } from 'lucide-react';
+import { Upload, FileCheck, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, ChevronRight, X, ArrowLeft, Loader as Loader2, Eye } from 'lucide-react';
 import { analyzeBlueprint } from '../lib/gemini';
 import { StepBar } from './ui/StepBar';
 import type { Project, BlueprintAnalysisResult, BuildingType, ConstructionStandard } from '../types';
