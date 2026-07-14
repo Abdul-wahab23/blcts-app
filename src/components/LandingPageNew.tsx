@@ -94,7 +94,7 @@ export default function LandingPageNew({ isDark, onToggleDark, onLogin, onGetSta
       color: 'from-blue-600 to-blue-800',
       border: 'border-blue-200 dark:border-blue-800/60',
       bg: 'bg-blue-50 dark:bg-blue-950/20',
-      tag: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+      tag: 'bg-blue-100 text-emerald-700 dark:bg-blue-900/40 dark:text-blue-300',
       icon: Building2,
       creds: { email: 'owner@blcts.ke', pass: 'owner123' },
       features: ['Register building projects', 'Upload architectural blueprints', 'Run AI blueprint analysis', 'Generate BOQ estimates', 'View lifecycle cost reports'],
@@ -332,7 +332,7 @@ export default function LandingPageNew({ isDark, onToggleDark, onLogin, onGetSta
       <section id="features" className="py-24 px-4 sm:px-6 bg-slate-50 dark:bg-white/2 border-y border-slate-200 dark:border-white/6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-3">Platform Capabilities</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-blue-400 mb-3">Platform Capabilities</p>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-4">
               Everything a QS Professional Needs
             </h2>
@@ -348,7 +348,7 @@ export default function LandingPageNew({ isDark, onToggleDark, onLogin, onGetSta
                 <div key={i} className="group bg-white dark:bg-white/4 border border-slate-200 dark:border-white/8 rounded-2xl p-5 hover:border-blue-300 dark:hover:border-blue-700/50 hover:shadow-md transition-all hover:-translate-y-0.5">
                   <div className="flex items-start justify-between mb-3">
                     <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Icon className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" style={{ width: 18, height: 18 }} />
+                      <Icon className="w-4.5 h-4.5 text-emerald-600 dark:text-blue-400" style={{ width: 18, height: 18 }} />
                     </div>
                     <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/6 text-slate-500 dark:text-slate-400">{f.tag}</span>
                   </div>
@@ -421,7 +421,7 @@ export default function LandingPageNew({ isDark, onToggleDark, onLogin, onGetSta
           <div className="flex flex-wrap items-center justify-center gap-8">
             {[
               { name: 'React 19', color: 'text-blue-500' },
-              { name: 'TypeScript', color: 'text-blue-600' },
+              { name: 'TypeScript', color: 'text-emerald-600' },
               { name: 'Tailwind CSS', color: 'text-teal-600' },
               { name: 'Supabase', color: 'text-emerald-600' },
               { name: 'Gemini AI', color: 'text-violet-600' },

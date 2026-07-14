@@ -16,7 +16,7 @@ const ROLE_STYLES: Record<string, { border: string; badge: string; dot: string }
   },
   'Building Owner': {
     border: 'border-blue-200 dark:border-blue-800/50 hover:border-blue-300 dark:hover:border-blue-700',
-    badge: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
+    badge: 'bg-blue-100 text-emerald-700 dark:bg-blue-950/40 dark:text-blue-300',
     dot: 'bg-blue-500',
   },
   'Facility Manager': {

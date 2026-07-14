@@ -1,9 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import {
-  Upload, FileCheck, AlertTriangle, CheckCircle2, X, ArrowLeft,
-  Loader2, Eye, FileText, Cpu, Layers, ChevronRight, Info,
-  Building2, MapPin, RotateCcw, Pencil,
-} from 'lucide-react';
+import { Upload, FileCheck, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, X, ArrowLeft, Loader as Loader2, Eye, FileText, Cpu, Layers, ChevronRight, Info, Building2, MapPin, RotateCcw, Pencil } from 'lucide-react';
 import { analyzeBlueprint } from '../lib/gemini';
 import { StepBar } from './ui/StepBar';
 import type { Project, BlueprintAnalysisResult, BuildingType, ConstructionStandard } from '../types';
@@ -222,7 +218,7 @@ export default function BlueprintUpload({ project, onConfirm, onBack }: Props) {
         <div className="h-5 w-px bg-slate-200 dark:bg-white/12" />
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center">
-            <Layers className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <Layers className="w-4 h-4 text-emerald-600 dark:text-blue-400" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">Blueprint Analysis</h1>
@@ -334,9 +330,9 @@ export default function BlueprintUpload({ project, onConfirm, onBack }: Props) {
           <div className="bg-white dark:bg-[#0f1629] rounded-2xl border border-slate-200 dark:border-white/8 p-10 flex flex-col items-center gap-5 shadow-sm">
             <div className="relative">
               <div className="w-20 h-20 rounded-2xl bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center">
-                <Cpu className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+                <Cpu className="w-10 h-10 text-emerald-600 dark:text-blue-400" />
               </div>
-              <div className="absolute inset-0 rounded-2xl border-4 border-blue-500/30 animate-ping" />
+              <div className="absolute inset-0 rounded-2xl border-4 border-emerald-500/30 animate-ping" />
             </div>
             <div className="text-center">
               <p className="text-lg font-bold text-slate-800 dark:text-slate-100">{currentStepLabel}</p>
@@ -388,7 +384,7 @@ export default function BlueprintUpload({ project, onConfirm, onBack }: Props) {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-white/6">
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center">
-                      <Cpu className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                      <Cpu className="w-3.5 h-3.5 text-emerald-600 dark:text-blue-400" />
                     </div>
                     <span className="text-sm font-bold text-slate-800 dark:text-slate-100">AI Analysis Results</span>
                   </div>
@@ -447,7 +443,7 @@ export default function BlueprintUpload({ project, onConfirm, onBack }: Props) {
             {stage === 'manual' && (
               <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/50 rounded-2xl px-4 py-3.5">
                 <Pencil className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-blue-700 dark:text-blue-400">
+                <p className="text-sm text-emerald-700 dark:text-blue-400">
                   Manual entry mode. The parameters below will be used for cost estimation.
                 </p>
               </div>

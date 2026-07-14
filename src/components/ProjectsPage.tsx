@@ -59,8 +59,8 @@ const STATUS_COLORS: Record<ProjectStatus, { badge: 'amber' | 'blue' | 'green' |
 };
 
 const STANDARD_COLORS: Record<ConstructionStandard, string> = {
-  Economy: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-  Standard: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
+  Economy: 'bg-slate-100 text-slate-700 dark:bg-[#0f1629] dark:text-slate-300',
+  Standard: 'bg-blue-100 text-emerald-700 dark:bg-blue-950/40 dark:text-blue-400',
   Premium: 'bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400',
   Luxury: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
 };
@@ -154,7 +154,7 @@ export default function ProjectsPage({
           {[
             { label: 'Total', value: myProjects.length, color: 'text-slate-700 dark:text-slate-300' },
             { label: 'With Blueprint', value: myProjects.filter(p => p.blueprintAnalysis).length, color: 'text-emerald-600 dark:text-emerald-400' },
-            { label: 'With Estimate', value: myProjects.filter(p => p.latestBoqId).length, color: 'text-blue-600 dark:text-blue-400' },
+            { label: 'With Estimate', value: myProjects.filter(p => p.latestBoqId).length, color: 'text-emerald-600 dark:text-blue-400' },
           ].map(s => (
             <div key={s.label} className="hidden sm:flex flex-col items-center px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/4 min-w-[70px]">
               <span className={`text-lg font-black tabular-nums ${s.color}`}>{s.value}</span>

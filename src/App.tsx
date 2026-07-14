@@ -140,7 +140,7 @@ function App() {
   function NoProjectSelected({ tab }: { tab: string }) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+        <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-[#0f1629] flex items-center justify-center mb-4">
           <span className="text-3xl">🏗️</span>
         </div>
         <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">No project selected</h2>
@@ -275,7 +275,7 @@ function UserManagementPage() {
 
   const roleColors: Record<string, string> = {
     Administrator: 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-900/40',
-    'Building Owner': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/40',
+    'Building Owner': 'bg-blue-50 text-emerald-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/40',
     'Facility Manager': 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/40',
   };
 
@@ -299,7 +299,7 @@ function UserManagementPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Total Users', value: DEMO_USERS.length, color: 'text-blue-600 dark:text-blue-400' },
+          { label: 'Total Users', value: DEMO_USERS.length, color: 'text-emerald-600 dark:text-blue-400' },
           { label: 'Active Now', value: DEMO_USERS.length, color: 'text-emerald-600 dark:text-emerald-400' },
           { label: 'Roles Defined', value: 3, color: 'text-violet-600 dark:text-violet-400' },
         ].map(s => (
@@ -344,10 +344,10 @@ function UserManagementPage() {
         <div className="p-5 overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-700">
+              <tr className="border-b border-slate-200 dark:border-white/8">
                 <th className="text-left pb-2 text-slate-500 dark:text-slate-400 font-medium">Permission</th>
                 <th className="text-center pb-2 text-violet-600 dark:text-violet-400 font-semibold">Admin</th>
-                <th className="text-center pb-2 text-blue-600 dark:text-blue-400 font-semibold">Owner</th>
+                <th className="text-center pb-2 text-emerald-600 dark:text-blue-400 font-semibold">Owner</th>
                 <th className="text-center pb-2 text-emerald-600 dark:text-emerald-400 font-semibold">FM</th>
               </tr>
             </thead>
@@ -365,7 +365,7 @@ function UserManagementPage() {
                 ['Manage Work Orders', false, false, true],
                 ['Record Actual Costs', false, false, true],
               ].map(([label, admin, owner, fm]) => (
-                <tr key={String(label)} className="border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                <tr key={String(label)} className="border-b border-slate-100 dark:border-white/6 last:border-0">
                   <td className="py-2 text-slate-700 dark:text-slate-300">{String(label)}</td>
                   <td className="py-2 text-center">{admin ? '✅' : '—'}</td>
                   <td className="py-2 text-center">{owner ? '✅' : '—'}</td>
@@ -377,8 +377,8 @@ function UserManagementPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-blue-200 dark:border-blue-800/60 bg-blue-50/50 dark:bg-blue-950/20 p-4">
-        <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+      <div className="rounded-2xl border border-blue-200 dark:border-blue-800/60 bg-emerald-50/50 dark:bg-emerald-950/10 dark:bg-blue-950/20 p-4">
+        <p className="text-sm text-emerald-700 dark:text-blue-300 font-medium">
           Demo accounts: admin@blcts.ke, owner@blcts.ke, fm@blcts.ke
         </p>
       </div>
@@ -417,7 +417,7 @@ function SystemSettingsPage() {
             </div>
             <span className={`flex-shrink-0 text-xs font-bold px-2.5 py-1 rounded-full ${
               item.color === 'green' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' :
-              item.color === 'blue' ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400' :
+              item.color === 'blue' ? 'bg-blue-100 text-emerald-700 dark:bg-blue-950/40 dark:text-blue-400' :
               'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
             }`}>{item.status}</span>
           </div>

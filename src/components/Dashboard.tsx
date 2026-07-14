@@ -30,11 +30,11 @@ interface KpiProps {
 function Kpi({ label, value, icon, trend, trendUp, sub, color = 'emerald' }: KpiProps) {
   const colorMap: Record<string, string> = {
     emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400',
-    blue: 'bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400',
+    blue: 'bg-blue-100 text-emerald-600 dark:bg-blue-950/40 dark:text-blue-400',
     violet: 'bg-violet-100 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400',
     amber: 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400',
     rose: 'bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400',
-    slate: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
+    slate: 'bg-slate-100 text-slate-600 dark:bg-[#0f1629] dark:text-slate-400',
   };
   return (
     <div className="group bg-white dark:bg-[#0f1629] border border-slate-200 dark:border-white/8 rounded-2xl p-5 hover:border-slate-300 dark:hover:border-white/14 hover:shadow-md transition-all">
@@ -171,7 +171,7 @@ function AdminDashboard({ projects, onNavigate }: { projects: Project[]; onNavig
               <div key={i} className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-white/4 transition-colors">
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{item.label}</span>
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                  item.color === 'emerald' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400'
+                  item.color === 'emerald' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-blue-100 text-emerald-700 dark:bg-blue-950/40 dark:text-blue-400'
                 }`}>{item.status}</span>
               </div>
             ))}
@@ -189,7 +189,7 @@ function AdminDashboard({ projects, onNavigate }: { projects: Project[]; onNavig
         ].map(action => {
           const Icon = action.icon;
           const colorMap: Record<string, string> = {
-            blue: 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/20',
+            blue: 'bg-emerald-600 hover:bg-emerald-500 shadow-blue-600/20',
             emerald: 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20',
             violet: 'bg-violet-600 hover:bg-violet-500 shadow-violet-600/20',
             amber: 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/20',
@@ -262,8 +262,8 @@ function OwnerDashboard({ user, projects, onNavigate }: Props) {
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Building Owner</span>
+            <Building2 className="w-4 h-4 text-emerald-600 dark:text-blue-400" />
+            <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-blue-400">Building Owner</span>
           </div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white">
             Welcome back, {user.name.split(' ')[0]}
@@ -271,7 +271,7 @@ function OwnerDashboard({ user, projects, onNavigate }: Props) {
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Your construction cost intelligence platform</p>
         </div>
         <button onClick={() => onNavigate('projects')}
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 transition-all hover:-translate-y-0.5">
+          className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-md shadow-blue-600/20 transition-all hover:-translate-y-0.5">
           <Plus className="w-4 h-4" /> New Project
         </button>
       </div>
@@ -306,7 +306,7 @@ function OwnerDashboard({ user, projects, onNavigate }: Props) {
                           step.done
                             ? 'bg-emerald-500 shadow-md shadow-emerald-500/30 hover:bg-emerald-400'
                             : isActive
-                            ? 'bg-blue-600 shadow-md shadow-blue-600/30 hover:bg-blue-500 ring-4 ring-blue-500/20'
+                            ? 'bg-emerald-600 shadow-md shadow-blue-600/30 hover:bg-blue-500 ring-4 ring-blue-500/20'
                             : 'bg-slate-100 dark:bg-white/6 text-slate-400 dark:text-slate-500 hover:bg-slate-200 dark:hover:bg-white/10'
                         }`}
                         title={`Go to: ${step.label}`}
@@ -317,7 +317,7 @@ function OwnerDashboard({ user, projects, onNavigate }: Props) {
                         }
                       </button>
                       <p className={`text-xs font-semibold text-center leading-tight ${
-                        step.done ? 'text-emerald-600 dark:text-emerald-400' : isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'
+                        step.done ? 'text-emerald-600 dark:text-emerald-400' : isActive ? 'text-emerald-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'
                       }`}>{step.label}</p>
                     </div>
                   );
@@ -327,12 +327,12 @@ function OwnerDashboard({ user, projects, onNavigate }: Props) {
               {nextStep && (
                 <div className="mt-5 flex items-center justify-between bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/50 rounded-xl px-4 py-3">
                   <div>
-                    <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide">Next Step</p>
-                    <p className="text-sm font-bold text-blue-800 dark:text-blue-300 mt-0.5">{nextStep.label}</p>
-                    <p className="text-xs text-blue-600/70 dark:text-blue-400/70">{nextStep.desc}</p>
+                    <p className="text-xs font-semibold text-emerald-700 dark:text-blue-400 uppercase tracking-wide">Next Step</p>
+                    <p className="text-sm font-bold text-emerald-800 dark:text-blue-300 mt-0.5">{nextStep.label}</p>
+                    <p className="text-xs text-emerald-600/70 dark:text-blue-400/70">{nextStep.desc}</p>
                   </div>
                   <button onClick={() => onNavigate(nextStep.id)}
-                    className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+                    className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
                     Start <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -377,7 +377,7 @@ function OwnerDashboard({ user, projects, onNavigate }: Props) {
               return (
                 <div key={project.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/50 dark:hover:bg-white/3 transition-colors">
                   <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950/30 flex items-center justify-center flex-shrink-0">
-                    <Building2 className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" style={{ width: 18, height: 18 }} />
+                    <Building2 className="w-4.5 h-4.5 text-emerald-600 dark:text-blue-400" style={{ width: 18, height: 18 }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{project.name}</p>
@@ -406,7 +406,7 @@ function OwnerDashboard({ user, projects, onNavigate }: Props) {
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">No projects yet</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">Register your first building project to begin the cost estimation workflow.</p>
           <button onClick={() => onNavigate('projects')}
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-blue-600/20 transition">
+            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-blue-600/20 transition">
             <Plus className="w-4 h-4" /> Create First Project
           </button>
         </div>
