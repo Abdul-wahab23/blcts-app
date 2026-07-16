@@ -9,6 +9,7 @@ import { fetchRegionalPricing, saveBOQ, fetchBOQHistory } from '../lib/supabase'
 import { fmtKSh, fmtKShFull, fmtPct } from '../lib/format';
 import { StepBar } from './ui/StepBar';
 import { Badge } from './ui/Badge';
+import { Input, Select } from './ui/Input';
 import type {
   Project, BOQEstimate, RegionalPricingRow, BuildingType, ConstructionStandard,
 } from '../types';
@@ -208,7 +209,7 @@ export default function CostEstimationPage({ project, onGoToBlueprint, onProject
         <div className="bg-white dark:bg-[#0f1629] rounded-2xl border border-slate-200 dark:border-white/8 shadow-sm p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-slate-800 dark:text-white dark:text-white">{project.name}</h1>
+              <h1 className="text-xl font-bold text-slate-800 dark:text-white">{project.name}</h1>
               <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{project.location}</span>
                 <span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5" />{project.county}</span>
@@ -376,40 +377,25 @@ interface ParamPanelProps {
 }
 
 function ParametersPanel(p: ParamPanelProps) {
-  const inputCls = 'w-full rounded-xl border border-slate-200 dark:border-white/12 bg-slate-50 dark:bg-white/4 px-3.5 py-2.5 text-sm text-slate-800 dark:text-white dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed';
-  const labelCls = 'block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1';
+
 
   return (
     <div className="bg-white dark:bg-[#0f1629] rounded-2xl border border-slate-200 dark:border-white/8 shadow-sm p-5">
       <div className="flex items-center gap-2 mb-4">
         <Calculator className="w-5 h-5 text-emerald-600" />
-        <h2 className="text-base font-bold text-slate-800 dark:text-white dark:text-white">Estimation Parameters</h2>
+        <h2 className="text-base font-bold text-slate-800 dark:text-white">Estimation Parameters</h2>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-        {/* County */}
-        <div>
-          <label className={labelCls}>County</label>
-          <select className={inputCls} value={p.county} onChange={(e) => p.setCounty(e.target.value)} disabled={p.running}>
-            {KENYA_COUNTIES.map((c) => <option key={c}>{c}</option>)}
-          </select>
-        </div>
-
-        {/* Building Type */}
-        <div>
-          <label className={labelCls}>Building Type</label>
-          <select className={inputCls} value={p.buildingType} onChange={(e) => p.setBuildingType(e.target.value)} disabled={p.running}>
-            {BUILDING_TYPES.map((t) => <option key={t}>{t}</option>)}
-          </select>
-        </div>
-
-        {/* Construction Standard */}
-        <div>
-          <label className={labelCls}>Construction Standard</label>
-          <select className={inputCls} value={p.standard} onChange={(e) => p.setStandard(e.target.value)} disabled={p.running}>
-            {STANDARDS.map((s) => <option key={s}>{s}</option>)}
-          </select>
-        </div>
+        <Select label="County" value={p.county} onChange={(e) => p.setCounty(e.target.value)} disabled={p.running}>
+          {KENYA_COUNTIES.map((c) => <option key={c}>{c}</option>)}
+        </Select>
+        <Select label="Building Type" value={p.buildingType} onChange={(e) => p.setBuildingType(e.target.value)} disabled={p.running}>
+          {BUILDING_TYPES.map((t) => <option key={t}>{t}</option>)}
+        </Select>
+        <Select label="Construction Standard" value={p.standard} onChange={(e) => p.setStandard(e.target.value)} disabled={p.running}>
+          {STANDARDS.map((s) => <option key={s}>{s}</option>)}
+        </Select>
       </div>
 
       {/* GFA Section */}
@@ -417,7 +403,7 @@ function ParametersPanel(p: ParamPanelProps) {
         <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Gross Floor Area</p>
-            <p className="text-2xl font-bold text-slate-800 dark:text-white dark:text-white mt-0.5">
+            <p className="text-2xl font-bold text-slate-800 dark:text-white mt-0.5">
               {p.gfa.toLocaleString()} <span className="text-sm font-normal text-slate-500">m²</span>
             </p>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -438,25 +424,24 @@ function ParametersPanel(p: ParamPanelProps) {
           </div>
         </div>
         {p.overrideGFA && (
-          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-200">
-            <div>
-              <label className={labelCls}>Floor Area Per Floor (m²)</label>
-              <input
-                type="number" min={10} className={inputCls}
-                value={p.customFloorArea}
-                onChange={(e) => p.setCustomFloorArea(e.target.value)}
-                disabled={p.running}
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Number of Floors</label>
-              <input
-                type="number" min={1} max={50} className={inputCls}
-                value={p.customFloors}
-                onChange={(e) => p.setCustomFloors(e.target.value)}
-                disabled={p.running}
-              />
-            </div>
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-200 dark:border-white/6">
+            <Input
+              label="Floor Area Per Floor (m²)"
+              type="number"
+              min={10}
+              value={p.customFloorArea}
+              onChange={(e) => p.setCustomFloorArea(e.target.value)}
+              disabled={p.running}
+            />
+            <Input
+              label="Number of Floors"
+              type="number"
+              min={1}
+              max={50}
+              value={p.customFloors}
+              onChange={(e) => p.setCustomFloors(e.target.value)}
+              disabled={p.running}
+            />
           </div>
         )}
       </div>
@@ -659,7 +644,7 @@ function SummaryTab({ estimate }: { estimate: BOQEstimate }) {
         {kpis.map((k) => (
           <div key={k.label} className={`${k.bg} rounded-xl p-4 border border-white`}>
             <div className="flex items-center gap-2 mb-2">{k.icon}<p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">{k.label}</p></div>
-            <p className="text-xl font-bold text-slate-800 dark:text-white dark:text-white leading-tight">{k.value}</p>
+            <p className="text-xl font-bold text-slate-800 dark:text-white leading-tight">{k.value}</p>
             <p className="text-xs text-slate-500 mt-0.5">{k.sub}</p>
           </div>
         ))}
@@ -667,7 +652,7 @@ function SummaryTab({ estimate }: { estimate: BOQEstimate }) {
 
       {/* Cost breakdown table */}
       <div>
-        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 uppercase tracking-wide mb-3">Transparent Cost Breakdown</h3>
+        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">Transparent Cost Breakdown</h3>
         <div className="overflow-x-auto rounded-xl border border-slate-200">
           <table className="w-full text-sm">
             <thead>
@@ -690,14 +675,14 @@ function SummaryTab({ estimate }: { estimate: BOQEstimate }) {
                       : 'hover:bg-slate-50/50 dark:hover:bg-white/3'
                   }`}
                 >
-                  <td className={`py-2.5 px-4 ${row.indent ? 'pl-8' : ''} ${row.bold ? 'font-bold text-slate-800 dark:text-white dark:text-white' : 'text-slate-700 dark:text-slate-300 dark:text-slate-300'} ${row.highlight ? 'text-emerald-800 dark:text-emerald-400 font-bold' : ''}`}>
+                  <td className={`py-2.5 px-4 ${row.indent ? 'pl-8' : ''} ${row.bold ? 'font-bold text-slate-800 dark:text-white' : 'text-slate-700 dark:text-slate-300'} ${row.highlight ? 'text-emerald-800 dark:text-emerald-400 font-bold' : ''}`}>
                     {row.label}
                   </td>
                   <td className="py-2.5 px-4 text-xs text-slate-400 italic">{row.formula ?? ''}</td>
                   <td className="py-2.5 px-4 text-right text-xs text-slate-500">
                     {row.pct != null ? fmtPct(row.pct) : ''}
                   </td>
-                  <td className={`py-2.5 px-4 text-right font-mono ${row.bold ? 'font-bold text-slate-800 dark:text-white dark:text-white' : 'text-slate-700 dark:text-slate-300 dark:text-slate-300'} ${row.highlight ? 'text-emerald-800 dark:text-emerald-400 font-bold text-base' : ''}`}>
+                  <td className={`py-2.5 px-4 text-right font-mono ${row.bold ? 'font-bold text-slate-800 dark:text-white' : 'text-slate-700 dark:text-slate-300'} ${row.highlight ? 'text-emerald-800 dark:text-emerald-400 font-bold text-base' : ''}`}>
                     {fmtKShFull(row.amount)}
                   </td>
                 </tr>
@@ -719,12 +704,12 @@ function BOQTab({ estimate, onExportCSV }: { estimate: BOQEstimate; onExportCSV:
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 uppercase tracking-wide">Bill of Quantities</h3>
+          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Bill of Quantities</h3>
           <p className="text-xs text-slate-500 mt-0.5">{estimate.lineItems.length} sections · {estimate.buildingType} · {estimate.constructionStandard}</p>
         </div>
         <button
           onClick={onExportCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-white/4 hover:bg-slate-50 dark:hover:bg-white/8 border border-slate-200 dark:border-white/12 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-white/4 hover:bg-slate-50 dark:hover:bg-white/8 border border-slate-200 dark:border-white/12 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors"
         >
           <Download className="w-4 h-4" />
           Export CSV
@@ -747,7 +732,7 @@ function BOQTab({ estimate, onExportCSV }: { estimate: BOQEstimate; onExportCSV:
           <tbody>
             {estimate.lineItems.map((li, i) => (
               <tr key={i} className="border-b border-slate-100 dark:border-white/6 dark:border-white/6 hover:bg-slate-50/60 dark:hover:bg-white/3 transition-colors">
-                <td className="py-3 px-4 font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300">{li.section}</td>
+                <td className="py-3 px-4 font-medium text-slate-700 dark:text-slate-300">{li.section}</td>
                 <td className="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-mono">{li.quantity.toLocaleString()}</td>
                 <td className="py-3 px-4 text-slate-500">{li.unit}</td>
                 <td className="py-3 px-4 text-right font-mono text-slate-600 dark:text-slate-400">{fmtKShFull(li.unitRate)}</td>
@@ -806,7 +791,7 @@ function LifecycleTab({ estimate }: { estimate: BOQEstimate }) {
     <div className="space-y-6">
       {/* OPEX breakdown cards */}
       <div>
-        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 uppercase tracking-wide mb-3">Annual OPEX Breakdown</h3>
+        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">Annual OPEX Breakdown</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {opexBreakdown.map((item) => (
             <div key={item.label} className={`${item.bg} rounded-xl p-4 border border-white`}>
@@ -821,7 +806,7 @@ function LifecycleTab({ estimate }: { estimate: BOQEstimate }) {
 
       {/* Area chart - Cumulative Cost */}
       <div>
-        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 uppercase tracking-wide mb-3">Cumulative Lifecycle Cost (KSh '000)</h3>
+        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">Cumulative Lifecycle Cost (KSh '000)</h3>
         <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 h-64">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
@@ -846,7 +831,7 @@ function LifecycleTab({ estimate }: { estimate: BOQEstimate }) {
 
       {/* Bar chart - Annual OPEX */}
       <div>
-        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 uppercase tracking-wide mb-3">Annual OPEX with Inflation (KSh '000)</h3>
+        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">Annual OPEX with Inflation (KSh '000)</h3>
         <div className="bg-slate-50 rounded-xl border border-slate-200 p-4 h-56">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
@@ -865,7 +850,7 @@ function LifecycleTab({ estimate }: { estimate: BOQEstimate }) {
 
       {/* TCO Summary table */}
       <div>
-        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 uppercase tracking-wide mb-3">TCO Summary</h3>
+        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">TCO Summary</h3>
         <div className="overflow-x-auto rounded-xl border border-slate-200">
           <table className="w-full text-sm">
             <thead>
@@ -877,8 +862,8 @@ function LifecycleTab({ estimate }: { estimate: BOQEstimate }) {
             <tbody>
               {tcoRows.map((row, i) => (
                 <tr key={i} className={`border-b border-slate-100 dark:border-white/6 dark:border-white/6 ${row.highlight ? 'bg-blue-50 dark:bg-blue-950/30' : 'hover:bg-slate-50/50 dark:hover:bg-white/3'}`}>
-                  <td className={`py-2.5 px-4 ${row.highlight ? 'font-bold text-emerald-800 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300 dark:text-slate-300'}`}>{row.label}</td>
-                  <td className={`py-2.5 px-4 text-right font-mono ${row.highlight ? 'font-bold text-emerald-800 dark:text-emerald-400 text-base' : 'text-slate-700 dark:text-slate-300 dark:text-slate-300'}`}>{fmtKShFull(row.amount)}</td>
+                  <td className={`py-2.5 px-4 ${row.highlight ? 'font-bold text-emerald-800 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`}>{row.label}</td>
+                  <td className={`py-2.5 px-4 text-right font-mono ${row.highlight ? 'font-bold text-emerald-800 dark:text-emerald-400 text-base' : 'text-slate-700 dark:text-slate-300'}`}>{fmtKShFull(row.amount)}</td>
                 </tr>
               ))}
             </tbody>
@@ -932,12 +917,12 @@ function ReportTab({ estimate, project }: { estimate: BOQEstimate; project: Proj
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 dark:text-slate-300 uppercase tracking-wide">Engineering Cost Report</h3>
+          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Engineering Cost Report</h3>
           <p className="text-xs text-slate-500 mt-0.5">Generated on {new Date(estimate.createdAt).toLocaleDateString('en-KE')}</p>
         </div>
         <button
           onClick={handlePrint}
-          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-white/4 hover:bg-slate-50 dark:hover:bg-white/8 border border-slate-200 dark:border-white/12 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 dark:text-slate-300 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-white/4 hover:bg-slate-50 dark:hover:bg-white/8 border border-slate-200 dark:border-white/12 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors"
         >
           <Printer className="w-4 h-4" />
           Print Report
