@@ -12,16 +12,6 @@ interface Props {
 const inputBase = 'w-full px-3.5 py-2.5 rounded-xl border bg-white dark:bg-[#0f1629] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition';
 const labelBase = 'block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5';
 
-const selectStyle = {
-  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'right 12px center',
-  paddingRight: '36px',
-  appearance: 'none',
-};
-
-
-
 function formatKsh(n: number): string {
   return 'KSh ' + Math.round(n).toLocaleString('en-KE');
 }
@@ -118,7 +108,11 @@ export default function PricingAdminPage({ onBack, initialTab = 'materials' }: P
         </button>
       </div>
 
-      {tab === 'materials' ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-24">
+          <div className="w-8 h-8 border-2 border-emerald-600/30 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      ) : tab === 'materials' ? (
         <>
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

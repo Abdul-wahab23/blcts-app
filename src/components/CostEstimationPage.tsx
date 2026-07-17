@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Fragment } from 'react';
 import type { Project, BOQItem, CostEstimate, LifecycleAnalysis, LifecycleCost } from '../types';
 import { ArrowLeft, Calculator, TrendingUp, DollarSign, FileText, Download, RefreshCw, Building2, Layers } from 'lucide-react';
 import { useToast } from './ui/Toast';
@@ -70,7 +70,7 @@ function formatKsh(n: number): string {
   return 'KSh ' + Math.round(n).toLocaleString('en-KE');
 }
 
-export default function CostEstimationPage({ project, onGoToBlueprint }: Props) {
+export default function CostEstimationPage({ project, onGoToBlueprint, onProjectUpdate }: Props) {
   const [activeView, setActiveView] = useState<'boq' | 'lifecycle'>('boq');
   const [generating, setGenerating] = useState(false);
   const [estimate, setEstimate] = useState<CostEstimate | null>(null);
@@ -194,6 +194,7 @@ export default function CostEstimationPage({ project, onGoToBlueprint }: Props) 
       const npv = annualCosts.reduce((s, c) => s + c.total / Math.pow(1 + 0.08, c.year), 0);
       setLifecycle({ years, inflationRate: inflation, annualCosts, totalLifecycleCost: totalLifecycle, netPresentValue: Math.round(npv) });
       setGenerating(false);
+      onProjectUpdate({ ...project, updatedAt: new Date().toISOString() });
       show('Cost estimation generated successfully', 'success');
     }, 1500);
   }
@@ -329,7 +330,7 @@ function BOQView({ estimate }: { estimate: CostEstimate }) {
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/6">
               {categories.map(cat => (
-                <>
+                <Fragment key={cat}>
                   <tr key={cat} className="bg-slate-50/50 dark:bg-white/3">
                     <td colSpan={5} className="px-5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide">{cat}</td>
                   </tr>
@@ -342,7 +343,7 @@ function BOQView({ estimate }: { estimate: CostEstimate }) {
                       <td className="px-5 py-2.5 text-right tabular-nums font-semibold text-slate-800 dark:text-slate-100">{formatKsh(item.totalCost)}</td>
                     </tr>
                   ))}
-                </>
+                </Fragment>
               ))}
             </tbody>
             <tfoot>
